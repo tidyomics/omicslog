@@ -117,7 +117,8 @@ se_mutate <- function(.data, ...) {
   }
   
   # Capture the pre-mutation state
-  pre_cols <- colnames(colData(.data))
+  pre_cols_data <- colnames(colData(.data))
+  pre_assay_names <- names(assays(.data))
   
   # Capture all the expressions being used in mutate
   dots <- rlang::enquos(...)
@@ -127,10 +128,18 @@ se_mutate <- function(.data, ...) {
   result <- callNextMethod(.data, ...)
   
   # Capture the post-mutation state
-  post_cols <- colnames(colData(result))
+  post_cols_data <- colnames(colData(result))
+  post_assay_names <- names(assays(result))
   
   # Identify new columns
-  new_cols <- setdiff(post_cols, pre_cols)
+  new_cols_data <- setdiff(post_cols_data, pre_cols_data)
+  new_assays <- setdiff(post_assay_names, pre_assay_names)
+  
+  # Combine all new columns
+  new_cols <- c(new_cols_data, new_assays)
+  
+  # Identify modified columns (in mut_names but not in new_cols)
+  modified_cols <- setdiff(mut_names, new_cols)
   
   # Generate log message
   timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
@@ -141,24 +150,21 @@ se_mutate <- function(.data, ...) {
       "mutate: added ", length(new_cols), " new column(s): ",
       paste(new_cols, collapse = ", ")
     )
-    
-    # cat(msg, "\n")  # Print to console
-    result@log_history <- c(.data@log_history, msg)
-  } else if (length(mut_names) > 0) {
+  } else if (length(modified_cols) > 0) {
     # If no new columns but mutations were specified, these were modifications
     msg <- paste0(
       "[", timestamp, "] ",
       "mutate: modified column(s): ",
-      paste(mut_names, collapse = ", ")
+      paste(modified_cols, collapse = ", ")
     )
-    
-    # cat(msg, "\n")  # Print to console
-    result@log_history <- c(.data@log_history, msg)
   } else {
     # No changes detected, preserve log history
     result@log_history <- .data@log_history
+    return(result)
   }
   
+  # Add the message to log history
+  result@log_history <- c(.data@log_history, msg)
   return(result)
 }
 
