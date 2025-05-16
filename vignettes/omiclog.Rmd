@@ -1,0 +1,101 @@
+---
+title: "Getting Started with omiclog"
+author:
+  - name: Your Name
+    affiliation: Your Institution
+    email: your.email@example.com
+output: BiocStyle::html_document
+vignette: >
+  %\VignetteIndexEntry{Getting Started with omiclog}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Introduction
+
+```{r setup}
+library(omiclog)
+library(SummarizedExperiment)
+library(tidySummarizedExperiment)
+```
+
+The `omiclog` package provides logging capabilities for `SummarizedExperiment` objects. 
+This is particularly useful for tracking transformations in complex analysis workflows.
+
+# Basic Usage
+
+## Creating a Logged SummarizedExperiment
+
+To start logging, simply apply the `log()` function to any `SummarizedExperiment` object:
+
+```{r}
+# Load example dataset
+data <- tidySummarizedExperiment::pasilla
+
+# Start logging
+logged_data <- log(data)
+```
+
+## Filtering Operations
+
+When you filter a logged object, information about the operation is automatically tracked:
+
+```{r}
+# Filter to keep only treated samples
+treated <- logged_data |>
+  filter(condition == "treated")
+
+# Filter to a specific gene
+gene_of_interest <- treated |>
+  filter(.feature == "FBgn0000003")
+```
+
+The log shows how many samples or genes were removed and what percentage they represent.
+
+## Column Modifications
+
+Column additions and modifications are also tracked:
+
+```{r}
+# Add a log-transformed counts column
+transformed <- gene_of_interest |>
+  mutate(log_counts = log2(counts + 1))
+```
+
+The log shows which columns were added or modified.
+
+## Viewing the Log
+
+The log is automatically displayed when the object is printed:
+
+```{r}
+# View the object with its log
+transformed
+```
+
+# Advanced Usage
+
+## Working with the Log History
+
+The log history is stored in the object and can be accessed directly:
+
+```{r}
+# Access the log history
+log_history <- transformed@log_history
+print(log_history)
+```
+
+This allows you to programmatically work with the log if needed.
+
+# Session Info
+
+```{r}
+sessionInfo()
+``` 

@@ -1,0 +1,168 @@
+#' Create a logging-enabled SummarizedExperiment object
+#'
+#' This function wraps a SummarizedExperiment object with logging capabilities.
+#' Operations performed on the resulting object will be tracked and displayed
+#' when the object is printed.
+#'
+#' @param se A SummarizedExperiment or derived object
+#' @return A SummarizedExperimentLogged object with tracking capabilities
+#' @export
+#' @examples
+#' if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
+#'   se <- tidySummarizedExperiment::pasilla
+#'   se_logged <- log(se)
+#'   result <- se_logged |>
+#'     filter(condition == "treated")
+#' }
+log <- function(se) {
+  if (!inherits(se, "SummarizedExperiment")) {
+    stop("Input must be a SummarizedExperiment or subclass.")
+  }
+  new("SummarizedExperimentLogged", se, log_history = character(0))
+}
+
+#' @rdname log
+#' @param object A SummarizedExperimentLogged object
+#' @export
+setMethod("show", "SummarizedExperimentLogged", function(object) {
+  # Call the parent show method first
+  callNextMethod()
+  
+  # Then display the log history
+  if (length(object@log_history) > 0) {
+    cat("\nOperation log:\n")
+    for (log_entry in object@log_history) {
+      cat(log_entry, "\n")
+    }
+  }
+})
+
+#' Filter rows and columns of a SummarizedExperimentLogged object
+#'
+#' @rdname filter
+#' @param .data A SummarizedExperimentLogged object
+#' @param ... Logical expressions used for filtering
+#' @importFrom dplyr filter
+#' @export
+se_filter <- function(.data, ...) {
+  # Normal filter for regular SummarizedExperiment
+  if (!inherits(.data, "SummarizedExperimentLogged")) {
+    return(filter(.data, ...))
+  }
+  
+  # Get dimensions before filtering
+  pre_dim <- dim(.data)
+  
+  # Apply the filter
+  result <- callNextMethod(.data, ...)
+  
+  # Get dimensions after filtering
+  post_dim <- dim(result)
+  
+  # Generate log message if dimensions changed
+  timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+  msg <- NULL
+  
+  # Check if rows (genes) changed
+  if (pre_dim[1] != post_dim[1]) {
+    genes_removed <- pre_dim[1] - post_dim[1]
+    percent_removed <- round(genes_removed / pre_dim[1] * 100)
+    msg <- paste0(
+      "[", timestamp, "] ",
+      "filter: removed ", genes_removed, " genes (", percent_removed, "%), ",
+      post_dim[1], " genes remaining"
+    )
+  }
+  
+  # Check if columns (samples) changed
+  if (pre_dim[2] != post_dim[2]) {
+    samples_removed <- pre_dim[2] - post_dim[2]
+    percent_removed <- round(samples_removed / pre_dim[2] * 100)
+    msg <- paste0(
+      "[", timestamp, "] ",
+      "filter: removed ", samples_removed, " samples (", percent_removed, "%), ",
+      post_dim[2], " samples remaining"
+    )
+  }
+  
+  # Add the message to log history if not NULL
+  if (!is.null(msg)) {
+   # cat(msg, "\n")  # Print to console
+    result@log_history <- c(.data@log_history, msg)
+  } else {
+    # Preserve existing log history
+    result@log_history <- .data@log_history
+  }
+  
+  return(result)
+}
+
+#' @rdname filter
+#' @export
+setMethod("filter", signature = signature(.data = "SummarizedExperimentLogged"),
+          definition = se_filter)
+
+#' Modify columns of a SummarizedExperimentLogged object
+#'
+#' @rdname mutate
+#' @param .data A SummarizedExperimentLogged object
+#' @param ... Name-value pairs of expressions used to modify columns
+#' @importFrom dplyr mutate
+#' @importFrom rlang enquos
+#' @export
+se_mutate <- function(.data, ...) {
+  # Normal mutate for regular SummarizedExperiment
+  if (!inherits(.data, "SummarizedExperimentLogged")) {
+    return(mutate(.data, ...))
+  }
+  
+  # Capture the pre-mutation state
+  pre_cols <- colnames(colData(.data))
+  
+  # Capture all the expressions being used in mutate
+  dots <- rlang::enquos(...)
+  mut_names <- names(dots)
+  
+  # Apply the mutate
+  result <- callNextMethod(.data, ...)
+  
+  # Capture the post-mutation state
+  post_cols <- colnames(colData(result))
+  
+  # Identify new columns
+  new_cols <- setdiff(post_cols, pre_cols)
+  
+  # Generate log message
+  timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+  
+  if (length(new_cols) > 0) {
+    msg <- paste0(
+      "[", timestamp, "] ",
+      "mutate: added ", length(new_cols), " new column(s): ",
+      paste(new_cols, collapse = ", ")
+    )
+    
+    # cat(msg, "\n")  # Print to console
+    result@log_history <- c(.data@log_history, msg)
+  } else if (length(mut_names) > 0) {
+    # If no new columns but mutations were specified, these were modifications
+    msg <- paste0(
+      "[", timestamp, "] ",
+      "mutate: modified column(s): ",
+      paste(mut_names, collapse = ", ")
+    )
+    
+    # cat(msg, "\n")  # Print to console
+    result@log_history <- c(.data@log_history, msg)
+  } else {
+    # No changes detected, preserve log history
+    result@log_history <- .data@log_history
+  }
+  
+  return(result)
+}
+
+#' @rdname mutate
+#' @export
+setMethod("mutate", signature = signature(.data = "SummarizedExperimentLogged"),
+          definition = se_mutate) 

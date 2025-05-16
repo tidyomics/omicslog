@@ -1,0 +1,16 @@
+citHeader("To cite omiclog in publications, please use:")
+
+citEntry(
+  entry    = "Manual",
+  title    = "omiclog: Logging for High-Throughput Omics Data Analysis",
+  author   = "Your Name",
+  year     = "2023",
+  note     = "R package version 0.99.0",
+  url      = "https://github.com/yourusername/omiclog",
+  textVersion = paste(
+    "Your Name (2023).",
+    "omiclog: Logging for High-Throughput Omics Data Analysis.",
+    "R package version 0.99.0.",
+    "https://github.com/yourusername/omiclog"
+  )
+) 
