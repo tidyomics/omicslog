@@ -1,4 +1,4 @@
 library(testthat)
-library(omiclog)
+library(omicslog)
 
-test_check("omiclog") 
+test_check("omicslog") 

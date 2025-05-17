@@ -13,5 +13,5 @@ NULL
 }
 
 .onAttach <- function(libname, pkgname) {
-  packageStartupMessage("Welcome to omiclog: Logging for High-Throughput Omics Data Analysis")
+  packageStartupMessage("Welcome to omicslog: Logging for High-Throughput Omics Data Analysis")
 } 

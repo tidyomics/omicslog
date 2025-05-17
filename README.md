@@ -1,62 +1,18 @@
-Getting Started with omiclog
+Getting Started with omicslog
 ================
 true
 
 # Introduction
 
 ``` r
-library(omiclog)
+library(omicslog)
 library(SummarizedExperiment)
 library(tidySummarizedExperiment)
 ```
 
-The `omiclog` package provides logging capabilities for
+The `omicslog` package provides logging capabilities for
 `SummarizedExperiment` objects. This is particularly useful for tracking
 transformations in complex analysis workflows.
-
-# Basic Usage
-
-## Creating a Logged SummarizedExperiment
-
-To start logging, simply apply the `log()` function to any
-`SummarizedExperiment` object:
-
-``` r
-# Load example dataset
-data <- tidySummarizedExperiment::pasilla
-
-# Start logging
-logged_data <- log(data)
-```
-
-## Step-by-Step Workflow
-
-You can perform operations step by step, examining the log at each
-stage:
-
-``` r
-# Filter to keep only treated samples
-treated <- logged_data |>
-  filter(condition == "treated")
-
-# Add a log-transformed counts column
-transformed <- treated |>
-  mutate(log_counts = log2(counts + 1))
-
-# Filter to a specific gene
-gene_of_interest <- transformed |>
-  filter(.feature == "FBgn0000003")
-
-# View the final object with its log
-gene_of_interest
-#> # A SummarizedExperiment-tibble abstraction: 3 × 6
-#> # Features=1 | Samples=3 | Assays=counts, log_counts
-#>   .feature    .sample counts log_counts condition type      
-#>   <chr>       <chr>    <int>      <dbl> <chr>     <chr>     
-#> 1 FBgn0000003 trt1         0          0 treated   single_end
-#> 2 FBgn0000003 trt2         0          0 treated   paired_end
-#> 3 FBgn0000003 trt3         1          1 treated   paired_end
-```
 
 ## Pipeline Workflow
 
@@ -80,26 +36,6 @@ result
 #> 2 FBgn0000003 trt2         0          0 treated   paired_end
 #> 3 FBgn0000003 trt3         1          1 treated   paired_end
 ```
-
-The log automatically tracks each transformation in sequence, showing: -
-How many samples were filtered when selecting only treated conditions -
-Which columns were modified with the log transformation - How many
-features were removed when filtering to a specific gene
-
-# Advanced Usage
-
-## Working with the Log History
-
-The log history is stored in the object and can be accessed directly:
-
-``` r
-# Access the log history
-log_history <- result@log_history
-print(log_history)
-#> character(0)
-```
-
-This allows you to programmatically work with the log if needed.
 
 # Session Info
 
@@ -131,7 +67,7 @@ sessionInfo()
 #>  [9] GenomeInfoDb_1.44.0             IRanges_2.42.0                 
 #> [11] S4Vectors_0.46.0                BiocGenerics_0.54.0            
 #> [13] generics_0.1.4                  MatrixGenerics_1.20.0          
-#> [15] matrixStats_1.5.0               omiclog_0.99.0                 
+#> [15] matrixStats_1.5.0               omicslog_0.99.0                 
 #> 
 #> loaded via a namespace (and not attached):
 #>  [1] gtable_0.3.6            xfun_0.52               bslib_0.9.0            

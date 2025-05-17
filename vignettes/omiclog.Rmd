@@ -1,12 +1,12 @@
 ---
-title: "Getting Started with omiclog"
+title: "Getting Started with omicslog"
 author:
   - name: Your Name
     affiliation: Your Institution
     email: your.email@example.com
 output: BiocStyle::html_document
 vignette: >
-  %\VignetteIndexEntry{Getting Started with omiclog}
+  %\VignetteIndexEntry{Getting Started with omicslog}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 knit: >
@@ -42,12 +42,12 @@ knitr::opts_chunk$set(
 # Introduction
 
 ```{r setup}
-library(omiclog)
+library(omicslog)
 library(SummarizedExperiment)
 library(tidySummarizedExperiment)
 ```
 
-The `omiclog` package provides logging capabilities for `SummarizedExperiment` objects. 
+The `omicslog` package provides logging capabilities for `SummarizedExperiment` objects. 
 This is particularly useful for tracking transformations in complex analysis workflows.
 
 ## Pipeline Workflow
