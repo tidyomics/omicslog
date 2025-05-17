@@ -1,7 +1,10 @@
-Getting Started with omicslog
+EXPERIMENTAL: Getting Started with omicslog
 ================
 
 # Introduction
+
+> **WARNING**: This package is EXPERIMENTAL and under active
+> development. APIs and functionality may change without notice.
 
 ``` r
 library(omicslog)
