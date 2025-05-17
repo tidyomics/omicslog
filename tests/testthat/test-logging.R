@@ -5,7 +5,7 @@ test_that("log, filter, and mutate operations work correctly on pasilla dataset"
   
   # Load the pasilla dataset and apply transformations
   result <- tidySummarizedExperiment::pasilla |>
-    log() |>
+    log_start() |>
     filter(condition == "treated") |>
     mutate(log_counts = log2(counts + 1)) |>
     filter(.feature == "FBgn0000003")

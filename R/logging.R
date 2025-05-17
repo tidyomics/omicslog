@@ -10,18 +10,18 @@
 #' @examples
 #' if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
 #'   se <- tidySummarizedExperiment::pasilla
-#'   se_logged <- log(se)
+#'   se_logged <- log_start(se)
 #'   result <- se_logged |>
 #'     filter(condition == "treated")
 #' }
-log <- function(se) {
+log_start <- function(se) {
   if (!inherits(se, "SummarizedExperiment")) {
     stop("Input must be a SummarizedExperiment or subclass.")
   }
   new("SummarizedExperimentLogged", se, log_history = character(0))
 }
 
-#' @rdname log
+#' @rdname log_start
 #' @param object A SummarizedExperimentLogged object
 #' @export
 setMethod("show", "SummarizedExperimentLogged", function(object) {

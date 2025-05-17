@@ -59,7 +59,7 @@ Alternatively, you can chain these operations into a single pipeline:
 # Complete workflow in a single pipeline
 result <- 
   airway |>
-  log() |>
+  log_start() |>
   filter(dex == "untrt") |>
   mutate(dex_upper = toupper(dex)) |>
   filter(.feature == "ENSG00000000003")

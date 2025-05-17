@@ -25,7 +25,7 @@ Alternatively, you can chain these operations into a single pipeline:
 # Complete workflow in a single pipeline
 result <- 
   airway |>
-  log() |>
+  log_start() |>
   filter(dex == "untrt") |>
   mutate(dex_upper = toupper(dex)) |>
   filter(.feature == "ENSG00000000003")
@@ -46,9 +46,9 @@ result
 #> #   seq_name <chr>, seq_strand <int>, seq_coord_system <int>, symbol <chr>
 #> 
 #> Operation log:
-#> [2025-05-17 13:21:05] filter: removed 4 samples (50%), 4 samples remaining
-#> [2025-05-17 13:21:05] mutate: added 1 new column(s): dex_upper
-#> [2025-05-17 13:21:05] filter: removed 63676 genes (100%), 1 genes remaining
+#> [2025-05-17 13:31:49] filter: removed 4 samples (50%), 4 samples remaining
+#> [2025-05-17 13:31:50] mutate: added 1 new column(s): dex_upper
+#> [2025-05-17 13:31:50] filter: removed 63676 genes (100%), 1 genes remaining
 ```
 
 # Session Info
