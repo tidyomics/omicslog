@@ -42,9 +42,10 @@ knitr::opts_chunk$set(
 > **WARNING**: This package is EXPERIMENTAL and under active development. APIs and functionality may change without notice.
 
 ```{r setup, message=FALSE}
-library(omicslog)
 library(SummarizedExperiment)
 library(tidySummarizedExperiment)
+library(omicslog)
+data(airway, package="airway")
 ```
 
 The `omicslog` package provides logging capabilities for `SummarizedExperiment` objects. 
@@ -56,21 +57,15 @@ Alternatively, you can chain these operations into a single pipeline:
 
 ```{r, message=TRUE, warning=TRUE}
 # Complete workflow in a single pipeline
-result <- tidySummarizedExperiment::pasilla |>
+result <- 
+  airway |>
   log() |>
-  filter(condition == "treated") |>
-  mutate(log_counts = log2(counts + 1)) |>
-  filter(.feature == "FBgn0000003")
+  filter(dex == "untrt") |>
+  mutate(dex_upper = toupper(dex)) |>
+  filter(.feature == "ENSG00000000003")
 
 # View the object with its complete log history
 result
-```
-
-```r
-Operation log:
-[2025-05-17 11:22:57] filter: removed 4 samples (57%), 3 samples remaining
-[2025-05-17 11:22:57] mutate: added 1 new column(s): log_counts
-[2025-05-17 11:22:57] filter: removed 14598 genes (100%), 1 genes remaining 
 ```
 
 # Session Info

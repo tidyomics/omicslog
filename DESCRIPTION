@@ -28,6 +28,7 @@ Imports:
     dplyr,
     rlang
 Suggests:
+    airway,
     tidySummarizedExperiment,
     knitr,
     rmarkdown,

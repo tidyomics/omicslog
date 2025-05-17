@@ -89,7 +89,7 @@ se_filter <- function(.data, ...) {
   
   # Add the message to log history if not NULL
   if (!is.null(msg)) {
-    cat(msg, "\n")  # Print to console
+    # cat(msg, "\n")  # Print to console
     result@log_history <- c(.data@log_history, msg)
   } else {
     # Preserve existing log history

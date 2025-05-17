@@ -7,9 +7,10 @@ EXPERIMENTAL: Getting Started with omicslog
 > development. APIs and functionality may change without notice.
 
 ``` r
-library(omicslog)
 library(SummarizedExperiment)
 library(tidySummarizedExperiment)
+library(omicslog)
+data(airway, package="airway")
 ```
 
 The `omicslog` package provides logging capabilities for
@@ -22,28 +23,32 @@ Alternatively, you can chain these operations into a single pipeline:
 
 ``` r
 # Complete workflow in a single pipeline
-result <- tidySummarizedExperiment::pasilla |>
+result <- 
+  airway |>
   log() |>
-  filter(condition == "treated") |>
-  mutate(log_counts = log2(counts + 1)) |>
-  filter(.feature == "FBgn0000003")
+  filter(dex == "untrt") |>
+  mutate(dex_upper = toupper(dex)) |>
+  filter(.feature == "ENSG00000000003")
 
 # View the object with its complete log history
 result
-#> # A SummarizedExperiment-tibble abstraction: 3 × 6
-#> # Features=1 | Samples=3 | Assays=counts, log_counts
-#>   .feature    .sample counts log_counts condition type      
-#>   <chr>       <chr>    <int>      <dbl> <chr>     <chr>     
-#> 1 FBgn0000003 trt1         0          0 treated   single_end
-#> 2 FBgn0000003 trt2         0          0 treated   paired_end
-#> 3 FBgn0000003 trt3         1          1 treated   paired_end
-```
-
-``` r
-Operation log:
-[2025-05-17 11:22:57] filter: removed 4 samples (57%), 3 samples remaining
-[2025-05-17 11:22:57] mutate: added 1 new column(s): log_counts
-[2025-05-17 11:22:57] filter: removed 14598 genes (100%), 1 genes remaining 
+#> # A SummarizedExperiment-tibble abstraction: 4 × 23
+#> # Features=1 | Samples=4 | Assays=counts
+#>   .feature        .sample    counts SampleName cell  dex   albut Run   avgLength
+#>   <chr>           <chr>       <int> <fct>      <fct> <fct> <fct> <fct>     <int>
+#> 1 ENSG00000000003 SRR1039508    679 GSM1275862 N613… untrt untrt SRR1…       126
+#> 2 ENSG00000000003 SRR1039512    873 GSM1275866 N052… untrt untrt SRR1…       126
+#> 3 ENSG00000000003 SRR1039516   1138 GSM1275870 N080… untrt untrt SRR1…       120
+#> 4 ENSG00000000003 SRR1039520    770 GSM1275874 N061… untrt untrt SRR1…       101
+#> # ℹ 14 more variables: Experiment <fct>, Sample <fct>, BioSample <fct>,
+#> #   dex_upper <chr>, gene_id <chr>, gene_name <chr>, entrezid <int>,
+#> #   gene_biotype <chr>, gene_seq_start <int>, gene_seq_end <int>,
+#> #   seq_name <chr>, seq_strand <int>, seq_coord_system <int>, symbol <chr>
+#> 
+#> Operation log:
+#> [2025-05-17 13:21:05] filter: removed 4 samples (50%), 4 samples remaining
+#> [2025-05-17 13:21:05] mutate: added 1 new column(s): dex_upper
+#> [2025-05-17 13:21:05] filter: removed 63676 genes (100%), 1 genes remaining
 ```
 
 # Session Info
@@ -69,14 +74,14 @@ sessionInfo()
 #> [8] base     
 #> 
 #> other attached packages:
-#>  [1] ggplot2_3.5.2                   tidyr_1.3.1                    
-#>  [3] dplyr_1.1.4                     tidySummarizedExperiment_1.18.1
-#>  [5] ttservice_0.4.1                 SummarizedExperiment_1.38.1    
-#>  [7] Biobase_2.68.0                  GenomicRanges_1.60.0           
-#>  [9] GenomeInfoDb_1.44.0             IRanges_2.42.0                 
-#> [11] S4Vectors_0.46.0                BiocGenerics_0.54.0            
-#> [13] generics_0.1.4                  MatrixGenerics_1.20.0          
-#> [15] matrixStats_1.5.0               omicslog_0.99.0                
+#>  [1] omicslog_0.99.0                 ggplot2_3.5.2                  
+#>  [3] tidyr_1.3.1                     dplyr_1.1.4                    
+#>  [5] tidySummarizedExperiment_1.18.1 ttservice_0.4.1                
+#>  [7] SummarizedExperiment_1.38.1     Biobase_2.68.0                 
+#>  [9] GenomicRanges_1.60.0            GenomeInfoDb_1.44.0            
+#> [11] IRanges_2.42.0                  S4Vectors_0.46.0               
+#> [13] BiocGenerics_0.54.0             generics_0.1.4                 
+#> [15] MatrixGenerics_1.20.0           matrixStats_1.5.0              
 #> 
 #> loaded via a namespace (and not attached):
 #>  [1] gtable_0.3.6            xfun_0.52               bslib_0.9.0            
@@ -93,7 +98,7 @@ sessionInfo()
 #> [34] purrr_1.0.4             rprojroot_2.0.4         fastmap_1.2.0          
 #> [37] grid_4.5.0              cli_3.6.5               SparseArray_1.8.0      
 #> [40] magrittr_2.0.3          S4Arrays_1.8.0          utf8_1.2.5             
-#> [43] withr_3.0.2             UCSC.utils_1.4.0        scales_1.4.0           
+#> [43] withr_3.0.2             scales_1.4.0            UCSC.utils_1.4.0       
 #> [46] rmarkdown_2.29          XVector_0.48.0          httr_1.4.7             
 #> [49] evaluate_1.0.3          knitr_1.50              viridisLite_0.4.2      
 #> [52] rlang_1.1.6             glue_1.8.0              rstudioapi_0.17.1      
