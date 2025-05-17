@@ -1,9 +1,5 @@
 ---
 title: "Getting Started with omicslog"
-author:
-  - name: Your Name
-    affiliation: Your Institution
-    email: your.email@example.com
 output: BiocStyle::html_document
 vignette: >
   %\VignetteIndexEntry{Getting Started with omicslog}
@@ -41,7 +37,7 @@ knitr::opts_chunk$set(
 
 # Introduction
 
-```{r setup}
+```{r setup, message=FALSE}
 library(omicslog)
 library(SummarizedExperiment)
 library(tidySummarizedExperiment)

@@ -2,9 +2,15 @@ Package: omicslog
 Title: Logging for High-Throughput Omics Data Analysis
 Version: 0.99.0
 Date: 2023-09-20
-Authors@R: 
-    person("Your", "Name", email = "your.email@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0000-0000-0000"))
+Authors@R: c(
+      person("Juan David", "Henao", role = c("aut"),
+           email = "juan.henao@helmholtz-muenchen.de"),
+    person("Stefano", "Mangiola", role = c("aut", "cre"),
+           email = "mangiolastefano@gmail.com",
+           comment = c(ORCID = "0000-0001-7474-836X")),
+      person("Michael", "Love", role = c("ctb"),
+           email = "michaelisaiahlove@gmail.com")
+      )
 Description: Provides logging capabilities for SummarizedExperiment objects. 
     This package extends SummarizedExperiment to include tracking of operations
     such as filtering and column modifications. The log is displayed when the
@@ -30,4 +36,4 @@ Suggests:
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Depends:
-    R (>= 4.2.0) 
+    R (>= 4.2.0)

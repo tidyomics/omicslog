@@ -1,6 +1,5 @@
 Getting Started with omicslog
 ================
-true
 
 # Introduction
 
@@ -67,7 +66,7 @@ sessionInfo()
 #>  [9] GenomeInfoDb_1.44.0             IRanges_2.42.0                 
 #> [11] S4Vectors_0.46.0                BiocGenerics_0.54.0            
 #> [13] generics_0.1.4                  MatrixGenerics_1.20.0          
-#> [15] matrixStats_1.5.0               omicslog_0.99.0                 
+#> [15] matrixStats_1.5.0               omicslog_0.99.0                
 #> 
 #> loaded via a namespace (and not attached):
 #>  [1] gtable_0.3.6            xfun_0.52               bslib_0.9.0            

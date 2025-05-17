@@ -30,10 +30,11 @@ setMethod("show", "SummarizedExperimentLogged", function(object) {
 
   # Then display the log history
   if (length(object@log_history) > 0) {
-    cat("\nOperation log:\n")
-    for (log_entry in object@log_history) {
-      cat(log_entry, "\n")
-    }
+    # Create a character vector for the log
+    log_output <- c("\nOperation log:", object@log_history)
+    
+    # Use message() instead of cat() for better capture in R Markdown
+    message(paste(log_output, collapse = "\n"))
   }
 })
 
