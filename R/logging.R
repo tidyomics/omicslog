@@ -27,7 +27,7 @@ log <- function(se) {
 setMethod("show", "SummarizedExperimentLogged", function(object) {
   # Call the parent show method first
   callNextMethod()
-  
+
   # Then display the log history
   if (length(object@log_history) > 0) {
     cat("\nOperation log:\n")
