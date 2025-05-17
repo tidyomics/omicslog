@@ -36,6 +36,13 @@ result
 #> 3 FBgn0000003 trt3         1          1 treated   paired_end
 ```
 
+``` r
+Operation log:
+[2025-05-17 11:22:57] filter: removed 4 samples (57%), 3 samples remaining
+[2025-05-17 11:22:57] mutate: added 1 new column(s): log_counts
+[2025-05-17 11:22:57] filter: removed 14598 genes (100%), 1 genes remaining 
+```
+
 # Session Info
 
 ``` r

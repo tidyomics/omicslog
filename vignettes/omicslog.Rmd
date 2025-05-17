@@ -31,7 +31,9 @@ knit: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  message = TRUE,
+  warning = TRUE
 )
 ```
 
@@ -50,7 +52,7 @@ This is particularly useful for tracking transformations in complex analysis wor
 
 Alternatively, you can chain these operations into a single pipeline:
 
-```{r}
+```{r, message=TRUE, warning=TRUE}
 # Complete workflow in a single pipeline
 result <- tidySummarizedExperiment::pasilla |>
   log() |>
@@ -60,6 +62,13 @@ result <- tidySummarizedExperiment::pasilla |>
 
 # View the object with its complete log history
 result
+```
+
+```r
+Operation log:
+[2025-05-17 11:22:57] filter: removed 4 samples (57%), 3 samples remaining
+[2025-05-17 11:22:57] mutate: added 1 new column(s): log_counts
+[2025-05-17 11:22:57] filter: removed 14598 genes (100%), 1 genes remaining 
 ```
 
 # Session Info
