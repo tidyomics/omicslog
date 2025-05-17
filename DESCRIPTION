@@ -1,5 +1,5 @@
 Package: omicslog
-Title: Logging for High-Throughput Omics Data Analysis
+Title: EXPERIMENTAL: Logging for High-Throughput Omics Data Analysis
 Version: 0.99.0
 Date: 2023-09-20
 Authors@R: c(
@@ -11,7 +11,7 @@ Authors@R: c(
       person("Michael", "Love", role = c("ctb"),
            email = "michaelisaiahlove@gmail.com")
       )
-Description: Provides logging capabilities for SummarizedExperiment objects. 
+Description: EXPERIMENTAL: Provides logging capabilities for SummarizedExperiment objects. 
     This package extends SummarizedExperiment to include tracking of operations
     such as filtering and column modifications. The log is displayed when the
     object is printed, helping users keep track of the data transformations

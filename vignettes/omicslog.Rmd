@@ -1,8 +1,8 @@
 ---
-title: "Getting Started with omicslog"
+title: "EXPERIMENTAL: Getting Started with omicslog"
 output: BiocStyle::html_document
 vignette: >
-  %\VignetteIndexEntry{Getting Started with omicslog}
+  %\VignetteIndexEntry{EXPERIMENTAL: Getting Started with omicslog}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 knit: >
@@ -38,6 +38,8 @@ knitr::opts_chunk$set(
 ```
 
 # Introduction
+
+> **WARNING**: This package is EXPERIMENTAL and under active development. APIs and functionality may change without notice.
 
 ```{r setup, message=FALSE}
 library(omicslog)
