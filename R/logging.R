@@ -5,6 +5,7 @@
 #' when the object is printed.
 #'
 #' @param se A SummarizedExperiment or derived object
+#' @param to_conda A list with environment name (env_name) and file name (file) to export the YAML file.
 #' @return A SummarizedExperimentLogged object with tracking capabilities
 #' @export
 #' @examples
@@ -14,10 +15,20 @@
 #'   result <- se_logged |>
 #'     filter(condition == "treated")
 #' }
-log_start <- function(se) {
+log_start <- function(se, to_conda = FALSE, to_docker = FALSE) {
   if (!inherits(se, "SummarizedExperiment")) {
     stop("Input must be a SummarizedExperiment or subclass.")
   }
+  
+  if(is.list(to_conda)){
+    generate_conda_env_yml(env_name = to_conda$env_name, 
+                           file = to_conda$file)
+  }
+  
+  if(to_docker){
+    generate_dockerfile()
+  }
+  
   new("SummarizedExperimentLogged", se, log_history = character(0))
 }
 
