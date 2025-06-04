@@ -89,7 +89,7 @@ setMethod("colData<-", signature = signature(x = "SummarizedExperimentLogged", v
               for (col in modified_cols) {
                 msg <- paste0(
                   "[", timestamp, "] ",
-                  "modified column '", col, "'"
+                  "colData<-: modified column '", col, "'"
                 )
                 log_messages <- c(log_messages, msg)
               }
@@ -149,7 +149,7 @@ setMethod("colData<-", signature = signature(x = "SummarizedExperimentLogged", v
               for (col in modified_cols) {
                 msg <- paste0(
                   "[", timestamp, "] ",
-                  "modified column '", col, "'"
+                  "colData<-: modified column '", col, "'"
                 )
                 log_messages <- c(log_messages, msg)
               }
