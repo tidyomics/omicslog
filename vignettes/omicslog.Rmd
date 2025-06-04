@@ -68,6 +68,28 @@ result <-
 result
 ```
 
+## Base R Subsetting
+
+You can also use base R subsetting operations, which will be logged automatically:
+
+```{r}
+# Create a logged object
+se_logged <- airway |>
+  log_start()
+
+# Subset genes (rows)
+result_genes <- se_logged[1:10, ]
+result_genes
+
+# Subset samples (columns)
+result_samples <- se_logged[, colData(se_logged)$dex == "untrt"]
+result_samples
+
+# Combined subsetting
+result_combined <- se_logged[1:5, colData(se_logged)$dex == "untrt"]
+result_combined
+```
+
 # Session Info
 
 ```{r}
