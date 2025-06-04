@@ -46,10 +46,59 @@ result
 #> #   seq_name <chr>, seq_strand <int>, seq_coord_system <int>, symbol <chr>
 #> 
 #> Operation log:
-#> [2025-05-17 13:31:49] filter: removed 4 samples (50%), 4 samples remaining
-#> [2025-05-17 13:31:50] mutate: added 1 new column(s): dex_upper
-#> [2025-05-17 13:31:50] filter: removed 63676 genes (100%), 1 genes remaining
+#> [2025-06-04 18:56:19] filter: removed 4 samples (50%), 4 samples remaining
+#> [2025-06-04 18:56:20] mutate: added 1 new column(s): dex_upper
+#> [2025-06-04 18:56:20] filter: removed 63676 genes (100%), 1 genes remaining
 ```
+
+## Base R Metadata Modifications
+
+The package also supports logging of base R metadata modifications. This
+includes operations like adding or modifying columns in the `colData`:
+
+``` r
+# Start with a logged object
+se_logged <- log_start(airway)
+
+# Add a new column to colData
+colData(se_logged)$new_column <- rep("test", ncol(se_logged))
+
+# Modify an existing column
+colData(se_logged)$dex <- tolower(colData(se_logged)$dex)
+
+# View the object to see the log history
+se_logged
+#> # A SummarizedExperiment-tibble abstraction: 509,416 × 23
+#> # Features=63677 | Samples=8 | Assays=counts
+#>    .feature        .sample   counts SampleName cell  dex   albut Run   avgLength
+#>    <chr>           <chr>      <int> <fct>      <fct> <chr> <fct> <fct>     <int>
+#>  1 ENSG00000000003 SRR10395…    679 GSM1275862 N613… untrt untrt SRR1…       126
+#>  2 ENSG00000000005 SRR10395…      0 GSM1275862 N613… untrt untrt SRR1…       126
+#>  3 ENSG00000000419 SRR10395…    467 GSM1275862 N613… untrt untrt SRR1…       126
+#>  4 ENSG00000000457 SRR10395…    260 GSM1275862 N613… untrt untrt SRR1…       126
+#>  5 ENSG00000000460 SRR10395…     60 GSM1275862 N613… untrt untrt SRR1…       126
+#>  6 ENSG00000000938 SRR10395…      0 GSM1275862 N613… untrt untrt SRR1…       126
+#>  7 ENSG00000000971 SRR10395…   3251 GSM1275862 N613… untrt untrt SRR1…       126
+#>  8 ENSG00000001036 SRR10395…   1433 GSM1275862 N613… untrt untrt SRR1…       126
+#>  9 ENSG00000001084 SRR10395…    519 GSM1275862 N613… untrt untrt SRR1…       126
+#> 10 ENSG00000001167 SRR10395…    394 GSM1275862 N613… untrt untrt SRR1…       126
+#> # ℹ 40 more rows
+#> # ℹ 14 more variables: Experiment <fct>, Sample <fct>, BioSample <fct>,
+#> #   new_column <chr>, gene_id <chr>, gene_name <chr>, entrezid <int>,
+#> #   gene_biotype <chr>, gene_seq_start <int>, gene_seq_end <int>,
+#> #   seq_name <chr>, seq_strand <int>, seq_coord_system <int>, symbol <chr>
+#> 
+#> Operation log:
+#> [2025-06-04 18:56:20] Added columns: new_column
+#> [2025-06-04 18:56:20] modified column 'dex'
+```
+
+The log will show: - When new columns are added - When existing columns
+are modified - The timestamp of each operation
+
+This is particularly useful when you need to: - Add custom annotations
+to your samples - Modify existing metadata - Track changes made to the
+object’s structure
 
 # Session Info
 
@@ -66,7 +115,7 @@ sessionInfo()
 #> locale:
 #> [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
 #> 
-#> time zone: Europe/Rome
+#> time zone: Australia/Adelaide
 #> tzcode source: internal
 #> 
 #> attached base packages:
@@ -87,7 +136,7 @@ sessionInfo()
 #>  [1] gtable_0.3.6            xfun_0.52               bslib_0.9.0            
 #>  [4] htmlwidgets_1.6.4       lattice_0.22-7          vctrs_0.6.5            
 #>  [7] tools_4.5.0             tibble_3.2.1            fansi_1.0.6            
-#> [10] pkgconfig_2.0.3         Matrix_1.7-3            data.table_1.17.2      
+#> [10] pkgconfig_2.0.3         Matrix_1.7-3            data.table_1.17.4      
 #> [13] RColorBrewer_1.1-3      lifecycle_1.0.4         GenomeInfoDbData_1.2.14
 #> [16] compiler_4.5.0          farver_2.1.2            stringr_1.5.1          
 #> [19] htmltools_0.5.8.1       sass_0.4.10             yaml_2.3.10            
@@ -97,7 +146,7 @@ sessionInfo()
 #> [31] tidyselect_1.2.1        digest_0.6.37           stringi_1.8.7          
 #> [34] purrr_1.0.4             rprojroot_2.0.4         fastmap_1.2.0          
 #> [37] grid_4.5.0              cli_3.6.5               SparseArray_1.8.0      
-#> [40] magrittr_2.0.3          S4Arrays_1.8.0          utf8_1.2.5             
+#> [40] magrittr_2.0.3          S4Arrays_1.8.1          utf8_1.2.5             
 #> [43] withr_3.0.2             scales_1.4.0            UCSC.utils_1.4.0       
 #> [46] rmarkdown_2.29          XVector_0.48.0          httr_1.4.7             
 #> [49] evaluate_1.0.3          knitr_1.50              viridisLite_0.4.2      
