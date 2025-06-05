@@ -62,6 +62,7 @@ result <-
   log_start() |>
   filter(dex == "untrt") |>
   mutate(dex_upper = toupper(dex)) |>
+  mutate(Run = tolower(Run)) |> 
   filter(.feature == "ENSG00000000003")
 
 # View the object with its complete log history
@@ -89,6 +90,35 @@ result_samples
 result_combined <- se_logged[1:5, colData(se_logged)$dex == "untrt"]
 result_combined
 ```
+
+
+## Base R Metadata Modifications
+
+The package also supports logging of base R metadata modifications. This includes operations like adding or modifying columns in the `colData`:
+
+```{r, message=TRUE, warning=TRUE}
+# Start with a logged object
+se_logged <- log_start(airway)
+
+# Add a new column to colData
+colData(se_logged)$new_column <- rep("test", ncol(se_logged))
+
+# Modify an existing column
+colData(se_logged)$dex <- tolower(colData(se_logged)$dex)
+
+# View the object to see the log history
+se_logged
+```
+
+The log will show:
+- When new columns are added
+- When existing columns are modified
+- The timestamp of each operation
+
+This is particularly useful when you need to:
+- Add custom annotations to your samples
+- Modify existing metadata
+- Track changes made to the object's structure
 
 # Session Info
 
