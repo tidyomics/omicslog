@@ -74,6 +74,9 @@ result
 Here's the same workflow implemented using base R operations:
 
 ```{r, message=TRUE, warning=TRUE}
+# revert printing to Bioconductor style
+options(restore_SummarizedExperiment_show = TRUE)
+
 # Start with logging
 result_base <- log_start(airway)
 

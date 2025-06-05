@@ -33,24 +33,20 @@ result <-
 
 # View the object with its complete log history
 result
-#> # A SummarizedExperiment-tibble abstraction: 4 × 23
-#> # Features=1 | Samples=4 | Assays=counts
-#>   .feature        .sample    counts SampleName cell  dex   albut Run   avgLength
-#>   <chr>           <chr>       <int> <fct>      <fct> <fct> <fct> <chr>     <int>
-#> 1 ENSG00000000003 SRR1039508    679 GSM1275862 N613… untrt untrt srr1…       126
-#> 2 ENSG00000000003 SRR1039512    873 GSM1275866 N052… untrt untrt srr1…       126
-#> 3 ENSG00000000003 SRR1039516   1138 GSM1275870 N080… untrt untrt srr1…       120
-#> 4 ENSG00000000003 SRR1039520    770 GSM1275874 N061… untrt untrt srr1…       101
-#> # ℹ 14 more variables: Experiment <fct>, Sample <fct>, BioSample <fct>,
-#> #   dex_upper <chr>, gene_id <chr>, gene_name <chr>, entrezid <int>,
-#> #   gene_biotype <chr>, gene_seq_start <int>, gene_seq_end <int>,
-#> #   seq_name <chr>, seq_strand <int>, seq_coord_system <int>, symbol <chr>
+#> class: SummarizedExperimentLogged 
+#> dim: 1 4 
+#> metadata(1): ''
+#> assays(1): counts
+#> rownames(1): ENSG00000000003
+#> rowData names(10): gene_id gene_name ... seq_coord_system symbol
+#> colnames(4): SRR1039508 SRR1039512 SRR1039516 SRR1039520
+#> colData names(10): SampleName cell ... BioSample dex_upper
 #> 
 #> Operation log:
-#> [2025-06-05 10:18:38] filter: removed 4 samples (50%), 4 samples remaining
-#> [2025-06-05 10:18:39] mutate: added 1 new column(s): dex_upper
-#> [2025-06-05 10:18:40] mutate: modified column(s): Run
-#> [2025-06-05 10:18:40] filter: removed 63676 genes (100%), 1 genes remaining
+#> [2025-06-05 10:55:03] filter: removed 4 samples (50%), 4 samples remaining
+#> [2025-06-05 10:55:04] mutate: added 1 new column(s): dex_upper
+#> [2025-06-05 10:55:04] mutate: modified column(s): Run
+#> [2025-06-05 10:55:04] filter: removed 63676 genes (100%), 1 genes remaining
 ```
 
 ## Base R Pipeline
@@ -58,6 +54,9 @@ result
 Here’s the same workflow implemented using base R operations:
 
 ``` r
+# revert printing to Bioconductor style
+options(restore_SummarizedExperiment_show = TRUE)
+
 # Start with logging
 result_base <- log_start(airway)
 
@@ -75,24 +74,20 @@ result_base <- result_base[rownames(result_base) == "ENSG00000000003", ]
 
 # View the object with its complete log history
 result_base
-#> # A SummarizedExperiment-tibble abstraction: 4 × 23
-#> # Features=1 | Samples=4 | Assays=counts
-#>   .feature        .sample    counts SampleName cell  dex   albut Run   avgLength
-#>   <chr>           <chr>       <int> <fct>      <fct> <fct> <fct> <chr>     <int>
-#> 1 ENSG00000000003 SRR1039508    679 GSM1275862 N613… untrt untrt srr1…       126
-#> 2 ENSG00000000003 SRR1039512    873 GSM1275866 N052… untrt untrt srr1…       126
-#> 3 ENSG00000000003 SRR1039516   1138 GSM1275870 N080… untrt untrt srr1…       120
-#> 4 ENSG00000000003 SRR1039520    770 GSM1275874 N061… untrt untrt srr1…       101
-#> # ℹ 14 more variables: Experiment <fct>, Sample <fct>, BioSample <fct>,
-#> #   dex_upper <chr>, gene_id <chr>, gene_name <chr>, entrezid <int>,
-#> #   gene_biotype <chr>, gene_seq_start <int>, gene_seq_end <int>,
-#> #   seq_name <chr>, seq_strand <int>, seq_coord_system <int>, symbol <chr>
+#> class: SummarizedExperimentLogged 
+#> dim: 1 4 
+#> metadata(1): ''
+#> assays(1): counts
+#> rownames(1): ENSG00000000003
+#> rowData names(10): gene_id gene_name ... seq_coord_system symbol
+#> colnames(4): SRR1039508 SRR1039512 SRR1039516 SRR1039520
+#> colData names(10): SampleName cell ... BioSample dex_upper
 #> 
 #> Operation log:
-#> [2025-06-05 10:18:40] subset: removed 4 samples (50%), 4 samples remaining
-#> [2025-06-05 10:18:40] colData<-: added 1 new column(s): dex_upper
-#> [2025-06-05 10:18:40] colData<-: modified column 'Run'
-#> [2025-06-05 10:18:40] subset: removed 63676 genes (100%), 1 genes remaining
+#> [2025-06-05 10:55:04] subset: removed 4 samples (50%), 4 samples remaining
+#> [2025-06-05 10:55:04] colData<-: added 1 new column(s): dex_upper
+#> [2025-06-05 10:55:04] colData<-: modified column 'Run'
+#> [2025-06-05 10:55:04] subset: removed 63676 genes (100%), 1 genes remaining
 ```
 
 # Session Info
