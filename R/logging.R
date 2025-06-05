@@ -1,3 +1,45 @@
+# Helper functions for logging
+.get_timestamp <- function() {
+  format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+}
+
+.format_log_message <- function(operation, message) {
+  paste0("[", .get_timestamp(), "] ", operation, ": ", message)
+}
+
+.update_log_history <- function(result, original, messages) {
+  if (length(messages) > 0) {
+    result@log_history <- c(original@log_history, messages)
+  } else {
+    result@log_history <- original@log_history
+  }
+  return(result)
+}
+
+.log_dimension_changes <- function(pre_dim, post_dim, operation) {
+  msgs <- character(0)
+  
+  # Check if rows (genes) changed
+  if (pre_dim[1] != post_dim[1]) {
+    genes_removed <- pre_dim[1] - post_dim[1]
+    percent_removed <- round(genes_removed / pre_dim[1] * 100)
+    msgs <- c(msgs, .format_log_message(operation, 
+      paste0("removed ", genes_removed, " genes (", percent_removed, "%), ",
+             post_dim[1], " genes remaining")))
+  }
+  
+  # Check if columns (samples) changed
+  if (pre_dim[2] != post_dim[2]) {
+    samples_removed <- pre_dim[2] - post_dim[2]
+    percent_removed <- round(samples_removed / pre_dim[2] * 100)
+    msgs <- c(msgs, .format_log_message(operation,
+      paste0("removed ", samples_removed, " samples (", percent_removed, "%), ",
+             post_dim[2], " samples remaining")))
+  }
+  
+  return(msgs)
+}
+
 #' Create a logging-enabled SummarizedExperiment object
 #'
 #' This function wraps a SummarizedExperiment object with logging capabilities.
@@ -61,41 +103,11 @@ se_filter <- function(.data, ...) {
   # Get dimensions after filtering
   post_dim <- dim(result)
   
-  # Generate log message if dimensions changed
-  timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-  msgs <- character(0)
+  # Generate log messages for dimension changes
+  msgs <- .log_dimension_changes(pre_dim, post_dim, "filter")
   
-  # Check if rows (genes) changed
-  if (pre_dim[1] != post_dim[1]) {
-    genes_removed <- pre_dim[1] - post_dim[1]
-    percent_removed <- round(genes_removed / pre_dim[1] * 100)
-    msgs <- c(msgs, paste0(
-      "[", timestamp, "] ",
-      "filter: removed ", genes_removed, " genes (", percent_removed, "%), ",
-      post_dim[1], " genes remaining"
-    ))
-  }
-  
-  # Check if columns (samples) changed
-  if (pre_dim[2] != post_dim[2]) {
-    samples_removed <- pre_dim[2] - post_dim[2]
-    percent_removed <- round(samples_removed / pre_dim[2] * 100)
-    msgs <- c(msgs, paste0(
-      "[", timestamp, "] ",
-      "filter: removed ", samples_removed, " samples (", percent_removed, "%), ",
-      post_dim[2], " samples remaining"
-    ))
-  }
-  
-  # Add the messages to log history if any
-  if (length(msgs) > 0) {
-    result@log_history <- c(.data@log_history, msgs)
-  } else {
-    # Preserve existing log history
-    result@log_history <- .data@log_history
-  }
-  
-  return(result)
+  # Update log history
+  return(.update_log_history(result, .data, msgs))
 }
 
 #' @rdname filter
@@ -143,30 +155,20 @@ se_mutate <- function(.data, ...) {
   modified_cols <- setdiff(mut_names, new_cols)
   
   # Generate log message
-  timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-  
   if (length(new_cols) > 0) {
-    msg <- paste0(
-      "[", timestamp, "] ",
-      "mutate: added ", length(new_cols), " new column(s): ",
-      paste(new_cols, collapse = ", ")
-    )
+    msg <- .format_log_message("mutate", 
+      paste0("added ", length(new_cols), " new column(s): ",
+             paste(new_cols, collapse = ", ")))
   } else if (length(modified_cols) > 0) {
-    # If no new columns but mutations were specified, these were modifications
-    msg <- paste0(
-      "[", timestamp, "] ",
-      "mutate: modified column(s): ",
-      paste(modified_cols, collapse = ", ")
-    )
+    msg <- .format_log_message("mutate",
+      paste0("modified column(s): ", paste(modified_cols, collapse = ", ")))
   } else {
     # No changes detected, preserve log history
-    result@log_history <- .data@log_history
-    return(result)
+    return(.update_log_history(result, .data, character(0)))
   }
   
-  # Add the message to log history
-  result@log_history <- c(.data@log_history, msg)
-  return(result)
+  # Update log history
+  return(.update_log_history(result, .data, msg))
 }
 
 #' @rdname mutate
