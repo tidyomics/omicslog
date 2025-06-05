@@ -28,6 +28,7 @@ result <-
   log_start() |>
   filter(dex == "untrt") |>
   mutate(dex_upper = toupper(dex)) |>
+  mutate(Run = tolower(Run)) |> 
   filter(.feature == "ENSG00000000003")
 
 # View the object with its complete log history
@@ -35,20 +36,63 @@ result
 #> # A SummarizedExperiment-tibble abstraction: 4 × 23
 #> # Features=1 | Samples=4 | Assays=counts
 #>   .feature        .sample    counts SampleName cell  dex   albut Run   avgLength
-#>   <chr>           <chr>       <int> <fct>      <fct> <fct> <fct> <fct>     <int>
-#> 1 ENSG00000000003 SRR1039508    679 GSM1275862 N613… untrt untrt SRR1…       126
-#> 2 ENSG00000000003 SRR1039512    873 GSM1275866 N052… untrt untrt SRR1…       126
-#> 3 ENSG00000000003 SRR1039516   1138 GSM1275870 N080… untrt untrt SRR1…       120
-#> 4 ENSG00000000003 SRR1039520    770 GSM1275874 N061… untrt untrt SRR1…       101
+#>   <chr>           <chr>       <int> <fct>      <fct> <fct> <fct> <chr>     <int>
+#> 1 ENSG00000000003 SRR1039508    679 GSM1275862 N613… untrt untrt srr1…       126
+#> 2 ENSG00000000003 SRR1039512    873 GSM1275866 N052… untrt untrt srr1…       126
+#> 3 ENSG00000000003 SRR1039516   1138 GSM1275870 N080… untrt untrt srr1…       120
+#> 4 ENSG00000000003 SRR1039520    770 GSM1275874 N061… untrt untrt srr1…       101
 #> # ℹ 14 more variables: Experiment <fct>, Sample <fct>, BioSample <fct>,
 #> #   dex_upper <chr>, gene_id <chr>, gene_name <chr>, entrezid <int>,
 #> #   gene_biotype <chr>, gene_seq_start <int>, gene_seq_end <int>,
 #> #   seq_name <chr>, seq_strand <int>, seq_coord_system <int>, symbol <chr>
 #> 
 #> Operation log:
-#> [2025-05-17 13:31:49] filter: removed 4 samples (50%), 4 samples remaining
-#> [2025-05-17 13:31:50] mutate: added 1 new column(s): dex_upper
-#> [2025-05-17 13:31:50] filter: removed 63676 genes (100%), 1 genes remaining
+#> [2025-06-05 10:18:38] filter: removed 4 samples (50%), 4 samples remaining
+#> [2025-06-05 10:18:39] mutate: added 1 new column(s): dex_upper
+#> [2025-06-05 10:18:40] mutate: modified column(s): Run
+#> [2025-06-05 10:18:40] filter: removed 63676 genes (100%), 1 genes remaining
+```
+
+## Base R Pipeline
+
+Here’s the same workflow implemented using base R operations:
+
+``` r
+# Start with logging
+result_base <- log_start(airway)
+
+# Filter samples by dex
+result_base <- result_base[, colData(result_base)$dex == "untrt"]
+
+# Add new column with uppercase dex
+colData(result_base)$dex_upper <- toupper(colData(result_base)$dex)
+
+# Modify Run column to lowercase
+colData(result_base)$Run <- tolower(colData(result_base)$Run)
+
+# Filter features
+result_base <- result_base[rownames(result_base) == "ENSG00000000003", ]
+
+# View the object with its complete log history
+result_base
+#> # A SummarizedExperiment-tibble abstraction: 4 × 23
+#> # Features=1 | Samples=4 | Assays=counts
+#>   .feature        .sample    counts SampleName cell  dex   albut Run   avgLength
+#>   <chr>           <chr>       <int> <fct>      <fct> <fct> <fct> <chr>     <int>
+#> 1 ENSG00000000003 SRR1039508    679 GSM1275862 N613… untrt untrt srr1…       126
+#> 2 ENSG00000000003 SRR1039512    873 GSM1275866 N052… untrt untrt srr1…       126
+#> 3 ENSG00000000003 SRR1039516   1138 GSM1275870 N080… untrt untrt srr1…       120
+#> 4 ENSG00000000003 SRR1039520    770 GSM1275874 N061… untrt untrt srr1…       101
+#> # ℹ 14 more variables: Experiment <fct>, Sample <fct>, BioSample <fct>,
+#> #   dex_upper <chr>, gene_id <chr>, gene_name <chr>, entrezid <int>,
+#> #   gene_biotype <chr>, gene_seq_start <int>, gene_seq_end <int>,
+#> #   seq_name <chr>, seq_strand <int>, seq_coord_system <int>, symbol <chr>
+#> 
+#> Operation log:
+#> [2025-06-05 10:18:40] subset: removed 4 samples (50%), 4 samples remaining
+#> [2025-06-05 10:18:40] colData<-: added 1 new column(s): dex_upper
+#> [2025-06-05 10:18:40] colData<-: modified column 'Run'
+#> [2025-06-05 10:18:40] subset: removed 63676 genes (100%), 1 genes remaining
 ```
 
 # Session Info
@@ -66,7 +110,7 @@ sessionInfo()
 #> locale:
 #> [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
 #> 
-#> time zone: Europe/Rome
+#> time zone: Australia/Adelaide
 #> tzcode source: internal
 #> 
 #> attached base packages:
@@ -87,7 +131,7 @@ sessionInfo()
 #>  [1] gtable_0.3.6            xfun_0.52               bslib_0.9.0            
 #>  [4] htmlwidgets_1.6.4       lattice_0.22-7          vctrs_0.6.5            
 #>  [7] tools_4.5.0             tibble_3.2.1            fansi_1.0.6            
-#> [10] pkgconfig_2.0.3         Matrix_1.7-3            data.table_1.17.2      
+#> [10] pkgconfig_2.0.3         Matrix_1.7-3            data.table_1.17.4      
 #> [13] RColorBrewer_1.1-3      lifecycle_1.0.4         GenomeInfoDbData_1.2.14
 #> [16] compiler_4.5.0          farver_2.1.2            stringr_1.5.1          
 #> [19] htmltools_0.5.8.1       sass_0.4.10             yaml_2.3.10            
@@ -97,7 +141,7 @@ sessionInfo()
 #> [31] tidyselect_1.2.1        digest_0.6.37           stringi_1.8.7          
 #> [34] purrr_1.0.4             rprojroot_2.0.4         fastmap_1.2.0          
 #> [37] grid_4.5.0              cli_3.6.5               SparseArray_1.8.0      
-#> [40] magrittr_2.0.3          S4Arrays_1.8.0          utf8_1.2.5             
+#> [40] magrittr_2.0.3          S4Arrays_1.8.1          utf8_1.2.5             
 #> [43] withr_3.0.2             scales_1.4.0            UCSC.utils_1.4.0       
 #> [46] rmarkdown_2.29          XVector_0.48.0          httr_1.4.7             
 #> [49] evaluate_1.0.3          knitr_1.50              viridisLite_0.4.2      

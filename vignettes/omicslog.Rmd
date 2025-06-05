@@ -62,10 +62,35 @@ result <-
   log_start() |>
   filter(dex == "untrt") |>
   mutate(dex_upper = toupper(dex)) |>
+  mutate(Run = tolower(Run)) |> 
   filter(.feature == "ENSG00000000003")
 
 # View the object with its complete log history
 result
+```
+
+## Base R Pipeline
+
+Here's the same workflow implemented using base R operations:
+
+```{r, message=TRUE, warning=TRUE}
+# Start with logging
+result_base <- log_start(airway)
+
+# Filter samples by dex
+result_base <- result_base[, colData(result_base)$dex == "untrt"]
+
+# Add new column with uppercase dex
+colData(result_base)$dex_upper <- toupper(colData(result_base)$dex)
+
+# Modify Run column to lowercase
+colData(result_base)$Run <- tolower(colData(result_base)$Run)
+
+# Filter features
+result_base <- result_base[rownames(result_base) == "ENSG00000000003", ]
+
+# View the object with its complete log history
+result_base
 ```
 
 # Session Info
