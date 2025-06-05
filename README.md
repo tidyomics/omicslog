@@ -47,159 +47,53 @@ result
 #> #   seq_name <chr>, seq_strand <int>, seq_coord_system <int>, symbol <chr>
 #> 
 #> Operation log:
-#> [2025-06-05 10:13:16] filter: removed 4 samples (50%), 4 samples remaining
-#> [2025-06-05 10:13:17] mutate: added 1 new column(s): dex_upper
-#> [2025-06-05 10:13:18] mutate: modified column(s): Run
-#> [2025-06-05 10:13:18] filter: removed 63676 genes (100%), 1 genes remaining
+#> [2025-06-05 10:18:38] filter: removed 4 samples (50%), 4 samples remaining
+#> [2025-06-05 10:18:39] mutate: added 1 new column(s): dex_upper
+#> [2025-06-05 10:18:40] mutate: modified column(s): Run
+#> [2025-06-05 10:18:40] filter: removed 63676 genes (100%), 1 genes remaining
 ```
 
-## Base R Subsetting
+## Base R Pipeline
 
-You can also use base R subsetting operations, which will be logged
-automatically:
-
-``` r
-# Create a logged object
-se_logged <- airway |>
-  log_start()
-
-# Subset genes (rows)
-result_genes <- se_logged[1:10, ]
-result_genes
-#> # A SummarizedExperiment-tibble abstraction: 80 × 22
-#> # Features=10 | Samples=8 | Assays=counts
-#>    .feature        .sample   counts SampleName cell  dex   albut Run   avgLength
-#>    <chr>           <chr>      <int> <fct>      <fct> <fct> <fct> <fct>     <int>
-#>  1 ENSG00000000003 SRR10395…    679 GSM1275862 N613… untrt untrt SRR1…       126
-#>  2 ENSG00000000005 SRR10395…      0 GSM1275862 N613… untrt untrt SRR1…       126
-#>  3 ENSG00000000419 SRR10395…    467 GSM1275862 N613… untrt untrt SRR1…       126
-#>  4 ENSG00000000457 SRR10395…    260 GSM1275862 N613… untrt untrt SRR1…       126
-#>  5 ENSG00000000460 SRR10395…     60 GSM1275862 N613… untrt untrt SRR1…       126
-#>  6 ENSG00000000938 SRR10395…      0 GSM1275862 N613… untrt untrt SRR1…       126
-#>  7 ENSG00000000971 SRR10395…   3251 GSM1275862 N613… untrt untrt SRR1…       126
-#>  8 ENSG00000001036 SRR10395…   1433 GSM1275862 N613… untrt untrt SRR1…       126
-#>  9 ENSG00000001084 SRR10395…    519 GSM1275862 N613… untrt untrt SRR1…       126
-#> 10 ENSG00000001167 SRR10395…    394 GSM1275862 N613… untrt untrt SRR1…       126
-#> # ℹ 70 more rows
-#> # ℹ 13 more variables: Experiment <fct>, Sample <fct>, BioSample <fct>,
-#> #   gene_id <chr>, gene_name <chr>, entrezid <int>, gene_biotype <chr>,
-#> #   gene_seq_start <int>, gene_seq_end <int>, seq_name <chr>, seq_strand <int>,
-#> #   seq_coord_system <int>, symbol <chr>
-#> 
-#> Operation log:
-#> [2025-06-05 10:13:18] subset: removed 63667 genes (100%), 10 genes remaining
-
-# Subset samples (columns)
-result_samples <- se_logged[, colData(se_logged)$dex == "untrt"]
-result_samples
-#> # A SummarizedExperiment-tibble abstraction: 254,708 × 22
-#> # Features=63677 | Samples=4 | Assays=counts
-#>    .feature        .sample   counts SampleName cell  dex   albut Run   avgLength
-#>    <chr>           <chr>      <int> <fct>      <fct> <fct> <fct> <fct>     <int>
-#>  1 ENSG00000000003 SRR10395…    679 GSM1275862 N613… untrt untrt SRR1…       126
-#>  2 ENSG00000000005 SRR10395…      0 GSM1275862 N613… untrt untrt SRR1…       126
-#>  3 ENSG00000000419 SRR10395…    467 GSM1275862 N613… untrt untrt SRR1…       126
-#>  4 ENSG00000000457 SRR10395…    260 GSM1275862 N613… untrt untrt SRR1…       126
-#>  5 ENSG00000000460 SRR10395…     60 GSM1275862 N613… untrt untrt SRR1…       126
-#>  6 ENSG00000000938 SRR10395…      0 GSM1275862 N613… untrt untrt SRR1…       126
-#>  7 ENSG00000000971 SRR10395…   3251 GSM1275862 N613… untrt untrt SRR1…       126
-#>  8 ENSG00000001036 SRR10395…   1433 GSM1275862 N613… untrt untrt SRR1…       126
-#>  9 ENSG00000001084 SRR10395…    519 GSM1275862 N613… untrt untrt SRR1…       126
-#> 10 ENSG00000001167 SRR10395…    394 GSM1275862 N613… untrt untrt SRR1…       126
-#> # ℹ 40 more rows
-#> # ℹ 13 more variables: Experiment <fct>, Sample <fct>, BioSample <fct>,
-#> #   gene_id <chr>, gene_name <chr>, entrezid <int>, gene_biotype <chr>,
-#> #   gene_seq_start <int>, gene_seq_end <int>, seq_name <chr>, seq_strand <int>,
-#> #   seq_coord_system <int>, symbol <chr>
-#> 
-#> Operation log:
-#> [2025-06-05 10:13:18] subset: removed 4 samples (50%), 4 samples remaining
-
-# Combined subsetting
-result_combined <- se_logged[1:5, colData(se_logged)$dex == "untrt"]
-result_combined
-#> # A SummarizedExperiment-tibble abstraction: 20 × 22
-#> # Features=5 | Samples=4 | Assays=counts
-#>    .feature        .sample   counts SampleName cell  dex   albut Run   avgLength
-#>    <chr>           <chr>      <int> <fct>      <fct> <fct> <fct> <fct>     <int>
-#>  1 ENSG00000000003 SRR10395…    679 GSM1275862 N613… untrt untrt SRR1…       126
-#>  2 ENSG00000000005 SRR10395…      0 GSM1275862 N613… untrt untrt SRR1…       126
-#>  3 ENSG00000000419 SRR10395…    467 GSM1275862 N613… untrt untrt SRR1…       126
-#>  4 ENSG00000000457 SRR10395…    260 GSM1275862 N613… untrt untrt SRR1…       126
-#>  5 ENSG00000000460 SRR10395…     60 GSM1275862 N613… untrt untrt SRR1…       126
-#>  6 ENSG00000000003 SRR10395…    873 GSM1275866 N052… untrt untrt SRR1…       126
-#>  7 ENSG00000000005 SRR10395…      0 GSM1275866 N052… untrt untrt SRR1…       126
-#>  8 ENSG00000000419 SRR10395…    621 GSM1275866 N052… untrt untrt SRR1…       126
-#>  9 ENSG00000000457 SRR10395…    263 GSM1275866 N052… untrt untrt SRR1…       126
-#> 10 ENSG00000000460 SRR10395…     40 GSM1275866 N052… untrt untrt SRR1…       126
-#> 11 ENSG00000000003 SRR10395…   1138 GSM1275870 N080… untrt untrt SRR1…       120
-#> 12 ENSG00000000005 SRR10395…      0 GSM1275870 N080… untrt untrt SRR1…       120
-#> 13 ENSG00000000419 SRR10395…    587 GSM1275870 N080… untrt untrt SRR1…       120
-#> 14 ENSG00000000457 SRR10395…    245 GSM1275870 N080… untrt untrt SRR1…       120
-#> 15 ENSG00000000460 SRR10395…     78 GSM1275870 N080… untrt untrt SRR1…       120
-#> 16 ENSG00000000003 SRR10395…    770 GSM1275874 N061… untrt untrt SRR1…       101
-#> 17 ENSG00000000005 SRR10395…      0 GSM1275874 N061… untrt untrt SRR1…       101
-#> 18 ENSG00000000419 SRR10395…    417 GSM1275874 N061… untrt untrt SRR1…       101
-#> 19 ENSG00000000457 SRR10395…    233 GSM1275874 N061… untrt untrt SRR1…       101
-#> 20 ENSG00000000460 SRR10395…     76 GSM1275874 N061… untrt untrt SRR1…       101
-#> # ℹ 13 more variables: Experiment <fct>, Sample <fct>, BioSample <fct>,
-#> #   gene_id <chr>, gene_name <chr>, entrezid <int>, gene_biotype <chr>,
-#> #   gene_seq_start <int>, gene_seq_end <int>, seq_name <chr>, seq_strand <int>,
-#> #   seq_coord_system <int>, symbol <chr>
-#> 
-#> Operation log:
-#> [2025-06-05 10:13:18] subset: removed 63672 genes (100%), 5 genes remaining
-#> [2025-06-05 10:13:18] subset: removed 4 samples (50%), 4 samples remaining
-```
-
-## Base R Metadata Modifications
-
-The package also supports logging of base R metadata modifications. This
-includes operations like adding or modifying columns in the `colData`:
+Here’s the same workflow implemented using base R operations:
 
 ``` r
-# Start with a logged object
-se_logged <- log_start(airway)
+# Start with logging
+result_base <- log_start(airway)
 
-# Add a new column to colData
-colData(se_logged)$new_column <- rep("test", ncol(se_logged))
+# Filter samples by dex
+result_base <- result_base[, colData(result_base)$dex == "untrt"]
 
-# Modify an existing column
-colData(se_logged)$dex <- tolower(colData(se_logged)$dex)
+# Add new column with uppercase dex
+colData(result_base)$dex_upper <- toupper(colData(result_base)$dex)
 
-# View the object to see the log history
-se_logged
-#> # A SummarizedExperiment-tibble abstraction: 509,416 × 23
-#> # Features=63677 | Samples=8 | Assays=counts
-#>    .feature        .sample   counts SampleName cell  dex   albut Run   avgLength
-#>    <chr>           <chr>      <int> <fct>      <fct> <chr> <fct> <fct>     <int>
-#>  1 ENSG00000000003 SRR10395…    679 GSM1275862 N613… untrt untrt SRR1…       126
-#>  2 ENSG00000000005 SRR10395…      0 GSM1275862 N613… untrt untrt SRR1…       126
-#>  3 ENSG00000000419 SRR10395…    467 GSM1275862 N613… untrt untrt SRR1…       126
-#>  4 ENSG00000000457 SRR10395…    260 GSM1275862 N613… untrt untrt SRR1…       126
-#>  5 ENSG00000000460 SRR10395…     60 GSM1275862 N613… untrt untrt SRR1…       126
-#>  6 ENSG00000000938 SRR10395…      0 GSM1275862 N613… untrt untrt SRR1…       126
-#>  7 ENSG00000000971 SRR10395…   3251 GSM1275862 N613… untrt untrt SRR1…       126
-#>  8 ENSG00000001036 SRR10395…   1433 GSM1275862 N613… untrt untrt SRR1…       126
-#>  9 ENSG00000001084 SRR10395…    519 GSM1275862 N613… untrt untrt SRR1…       126
-#> 10 ENSG00000001167 SRR10395…    394 GSM1275862 N613… untrt untrt SRR1…       126
-#> # ℹ 40 more rows
+# Modify Run column to lowercase
+colData(result_base)$Run <- tolower(colData(result_base)$Run)
+
+# Filter features
+result_base <- result_base[rownames(result_base) == "ENSG00000000003", ]
+
+# View the object with its complete log history
+result_base
+#> # A SummarizedExperiment-tibble abstraction: 4 × 23
+#> # Features=1 | Samples=4 | Assays=counts
+#>   .feature        .sample    counts SampleName cell  dex   albut Run   avgLength
+#>   <chr>           <chr>       <int> <fct>      <fct> <fct> <fct> <chr>     <int>
+#> 1 ENSG00000000003 SRR1039508    679 GSM1275862 N613… untrt untrt srr1…       126
+#> 2 ENSG00000000003 SRR1039512    873 GSM1275866 N052… untrt untrt srr1…       126
+#> 3 ENSG00000000003 SRR1039516   1138 GSM1275870 N080… untrt untrt srr1…       120
+#> 4 ENSG00000000003 SRR1039520    770 GSM1275874 N061… untrt untrt srr1…       101
 #> # ℹ 14 more variables: Experiment <fct>, Sample <fct>, BioSample <fct>,
-#> #   new_column <chr>, gene_id <chr>, gene_name <chr>, entrezid <int>,
+#> #   dex_upper <chr>, gene_id <chr>, gene_name <chr>, entrezid <int>,
 #> #   gene_biotype <chr>, gene_seq_start <int>, gene_seq_end <int>,
 #> #   seq_name <chr>, seq_strand <int>, seq_coord_system <int>, symbol <chr>
 #> 
 #> Operation log:
-#> [2025-06-05 10:13:18] colData<-: added 1 new column(s): new_column
-#> [2025-06-05 10:13:18] colData<-: modified column 'dex'
+#> [2025-06-05 10:18:40] subset: removed 4 samples (50%), 4 samples remaining
+#> [2025-06-05 10:18:40] colData<-: added 1 new column(s): dex_upper
+#> [2025-06-05 10:18:40] colData<-: modified column 'Run'
+#> [2025-06-05 10:18:40] subset: removed 63676 genes (100%), 1 genes remaining
 ```
-
-The log will show: - When new columns are added - When existing columns
-are modified - The timestamp of each operation
-
-This is particularly useful when you need to: - Add custom annotations
-to your samples - Modify existing metadata - Track changes made to the
-object’s structure
 
 # Session Info
 

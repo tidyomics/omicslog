@@ -69,56 +69,29 @@ result <-
 result
 ```
 
-## Base R Subsetting
+## Base R Pipeline
 
-You can also use base R subsetting operations, which will be logged automatically:
-
-```{r}
-# Create a logged object
-se_logged <- airway |>
-  log_start()
-
-# Subset genes (rows)
-result_genes <- se_logged[1:10, ]
-result_genes
-
-# Subset samples (columns)
-result_samples <- se_logged[, colData(se_logged)$dex == "untrt"]
-result_samples
-
-# Combined subsetting
-result_combined <- se_logged[1:5, colData(se_logged)$dex == "untrt"]
-result_combined
-```
-
-
-## Base R Metadata Modifications
-
-The package also supports logging of base R metadata modifications. This includes operations like adding or modifying columns in the `colData`:
+Here's the same workflow implemented using base R operations:
 
 ```{r, message=TRUE, warning=TRUE}
-# Start with a logged object
-se_logged <- log_start(airway)
+# Start with logging
+result_base <- log_start(airway)
 
-# Add a new column to colData
-colData(se_logged)$new_column <- rep("test", ncol(se_logged))
+# Filter samples by dex
+result_base <- result_base[, colData(result_base)$dex == "untrt"]
 
-# Modify an existing column
-colData(se_logged)$dex <- tolower(colData(se_logged)$dex)
+# Add new column with uppercase dex
+colData(result_base)$dex_upper <- toupper(colData(result_base)$dex)
 
-# View the object to see the log history
-se_logged
+# Modify Run column to lowercase
+colData(result_base)$Run <- tolower(colData(result_base)$Run)
+
+# Filter features
+result_base <- result_base[rownames(result_base) == "ENSG00000000003", ]
+
+# View the object with its complete log history
+result_base
 ```
-
-The log will show:
-- When new columns are added
-- When existing columns are modified
-- The timestamp of each operation
-
-This is particularly useful when you need to:
-- Add custom annotations to your samples
-- Modify existing metadata
-- Track changes made to the object's structure
 
 # Session Info
 
