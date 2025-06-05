@@ -43,10 +43,10 @@ result
 #> colData names(10): SampleName cell ... BioSample dex_upper
 #> 
 #> Operation log:
-#> [2025-06-05 10:55:03] filter: removed 4 samples (50%), 4 samples remaining
-#> [2025-06-05 10:55:04] mutate: added 1 new column(s): dex_upper
-#> [2025-06-05 10:55:04] mutate: modified column(s): Run
-#> [2025-06-05 10:55:04] filter: removed 63676 genes (100%), 1 genes remaining
+#> [2025-06-05 10:57:58] filter: removed 4 samples (50%), 4 samples remaining
+#> [2025-06-05 10:57:59] mutate: added 1 new column(s): dex_upper
+#> [2025-06-05 10:58:00] mutate: modified column(s): Run
+#> [2025-06-05 10:58:00] filter: removed 63676 genes (100%), 1 genes remaining
 ```
 
 ## Base R Pipeline
@@ -84,10 +84,10 @@ result_base
 #> colData names(10): SampleName cell ... BioSample dex_upper
 #> 
 #> Operation log:
-#> [2025-06-05 10:55:04] subset: removed 4 samples (50%), 4 samples remaining
-#> [2025-06-05 10:55:04] colData<-: added 1 new column(s): dex_upper
-#> [2025-06-05 10:55:04] colData<-: modified column 'Run'
-#> [2025-06-05 10:55:04] subset: removed 63676 genes (100%), 1 genes remaining
+#> [2025-06-05 10:58:00] subset: removed 4 samples (50%), 4 samples remaining
+#> [2025-06-05 10:58:00] colData<-: added 1 new column(s): dex_upper
+#> [2025-06-05 10:58:00] colData<-: modified column 'Run'
+#> [2025-06-05 10:58:00] subset: removed 63676 genes (100%), 1 genes remaining
 ```
 
 # Session Info
