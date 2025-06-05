@@ -96,6 +96,11 @@ result_base <- result_base[rownames(result_base) == "ENSG00000000003", ]
 result_base
 ```
 
+```{r echo=FALSE}
+# revert printing to Bioconductor style
+options(restore_SummarizedExperiment_show = FALSE)
+```
+
 # Session Info
 
 ```{r}
