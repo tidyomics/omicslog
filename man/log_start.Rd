@@ -5,12 +5,14 @@
 \alias{show,SummarizedExperimentLogged-method}
 \title{Create a logging-enabled SummarizedExperiment object}
 \usage{
-log_start(se)
+log_start(se, to_conda = FALSE, to_docker = FALSE)
 
 \S4method{show}{SummarizedExperimentLogged}(object)
 }
 \arguments{
 \item{se}{A SummarizedExperiment or derived object}
+
+\item{to_conda}{A list with environment name (env_name) and file name (file) to export the YAML file.}
 
 \item{object}{A SummarizedExperimentLogged object}
 }
