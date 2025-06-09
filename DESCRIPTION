@@ -3,7 +3,7 @@ Title: EXPERIMENTAL: Logging for High-Throughput Omics Data Analysis
 Version: 0.99.0
 Date: 2023-09-20
 Authors@R: c(
-      person("Juan David", "Henao", role = c("aut", "cre"),
+      person("Juan David", "Henao", role = c("aut"),
            email = "juan.henao@helmholtz-muenchen.de"),
     person("Stefano", "Mangiola", role = c("aut", "cre"),
            email = "mangiolastefano@gmail.com",

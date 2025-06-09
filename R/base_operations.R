@@ -57,8 +57,9 @@ setMethod("[", signature = signature(x = "SummarizedExperimentLogged"),
             return(result)
 })
 
-#' @importFrom S4Vectors colData
-#' @importFrom S4Vectors colData<-
+#' Assign column to colData using `$<-` for SummarizedExperimentLogged
+#' @rdname dollar-set
+#' @importFrom SummarizedExperiment colData colData<-
 #' @importFrom BiocGenerics colnames
 #' @export
 #' @examples
@@ -163,6 +164,7 @@ setMethod("$<-", signature = signature(x = "SummarizedExperimentLogged"),
   return(x)
 }
 
+#' Assign column to colData using `colData<-` for SummarizedExperimentLogged
 #' @rdname colData
 #' @export
 setMethod("colData<-", signature = signature(x = "SummarizedExperimentLogged", value = "DataFrame"),
