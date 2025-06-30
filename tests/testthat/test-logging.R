@@ -6,18 +6,25 @@ test_that("log, filter, and mutate operations work correctly on pasilla dataset"
   # Load the pasilla dataset and apply transformations
   result <- tidySummarizedExperiment::pasilla |>
     log_start() |>
+    extract(col = type,into = c("fragment","end"),regex = "([[:alnum:]]+)_([[:alnum:]]+)") |>
+    select(!end) |>
     filter(condition == "treated") |>
     mutate(log_counts = log2(counts + 1)) |>
-    filter(.feature == "FBgn0000003")
+    filter(.feature == "FBgn0000003") |>
+    slice(3)
   
-  # Tests
+  # Test
   expect_s4_class(result, "SummarizedExperimentLogged")
   expect_identical(dim(result), c(1L, ncol(result)))  # Only one gene should remain
   expect_true("log_counts" %in% names(assays(result)))
-  expect_true(length(result@log_history) == 3)  # Should have 3 log entries: 2 filters and 1 mutate
-  expect_match(result@log_history[1], "filter: removed \\d+ samples")
-  expect_match(result@log_history[2], "mutate: added 1 new column\\(s\\): log_counts")
-  expect_match(result@log_history[3], "filter: removed \\d+ genes")
+  expect_true(result$fragment == "paired")
+  expect_true(length(result@log_history) == 6)  # Should have 3 log entries: 2 filters and 1 mutate
+  expect_match(result@log_history[1], "extract: extracted '\\w+' into")
+  expect_match(result@log_history[2], "select: removed \\d+")
+  expect_match(result@log_history[3], "filter: removed \\d+ samples")
+  expect_match(result@log_history[4], "mutate: added \\d+ new column\\(s\\): log_counts")
+  expect_match(result@log_history[5], "filter: removed \\d+ genes")
+  expect_match(result@log_history[6], "slice: Kept \\d+/\\d+ rows")
 })
 
 test_that("base R subsetting operations are logged correctly", {

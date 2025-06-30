@@ -257,8 +257,11 @@ setMethod("extract",
             col_name <- rlang::as_name(rlang::enquo(col))
             
             # Perform extraction using tidyr's method
-            result <- tidyr::extract(data, {{ col }}, into, regex,
-                                     remove = remove, convert = convert, ...)
+            result <- data
+            colData(result) <- colData(result) |> as.data.frame() |>
+              tidyr::extract({{ col }}, into, regex,
+                                     remove = remove, convert = convert, ...) |>
+              S4Vectors::DataFrame()
             
             # Capture post-state
             post_cols <- colnames(colData(result))
