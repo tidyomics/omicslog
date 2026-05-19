@@ -1,16 +1,13 @@
 # Helper functions for logging
 .get_timestamp <- function() {
-  format(Sys.time(), "%Y-%m-%d %H:%M:%S") |> strsplit("-| |:") |> unlist()
+  format(Sys.time(), "%Y-%m-%d %H:%M:%S")
 }
 
-.format_log_message <- function(operation, action, modification, type, left) {
+.format_log_message <- function(operation, message) {
   ts <- .get_timestamp()
   list(
-    Year = ts[1], Month = ts[2], Day = ts[3],
-    Hour = ts[4], Minute = ts[5], Second = ts[6],
-    Operation = operation, Action = action,
-    Modification = as.character(modification),
-    Type = type, Left = as.character(left)
+    Time = ts,
+    Operation = operation, Message = message
   )
 }
 
@@ -28,14 +25,18 @@
 
   if (pre_dim[1] != post_dim[1]) {
     genes_removed <- pre_dim[1] - post_dim[1]
+    percent_removed <- round(genes_removed / pre_dim[1] * 100)
     msgs <- c(msgs, list(.format_log_message(operation,
-      "removed", genes_removed, "gene", post_dim[1])))
+     paste0("removed ", genes_removed, " gene(s) (", percent_removed, "%), ",
+             post_dim[1], " gene(s) remaining"))))
   }
 
   if (pre_dim[2] != post_dim[2]) {
     samples_removed <- pre_dim[2] - post_dim[2]
+    percent_removed <- round(samples_removed / pre_dim[2] * 100)
     msgs <- c(msgs, list(.format_log_message(operation,
-      "removed", samples_removed, "sample", post_dim[2])))
+      paste0("removed ", samples_removed, " sample(s) (", percent_removed, "%), ",
+             post_dim[2], " sample(s) remaining"))))
   }
 
   return(msgs)
@@ -62,10 +63,8 @@ log_start <- function(se) {
   if (!inherits(se, "SummarizedExperiment")) {
     stop("Input must be a SummarizedExperiment or subclass.")
   }
-  new("SummarizedExperimentLogged", se, log_history = tibble(Year = character(), Month = character(), 
-  Day = character(), Hour = character(), Minute = character(), Second = character(),
-  Operation = character(), Action = character(), Modification = character(), 
-  Type = character(), Left = character()))
+  new("SummarizedExperimentLogged", se, log_history = tibble(Time = character(),
+  Operation = character(), Message = character()))
 }
 
 #' @rdname log_start
@@ -80,13 +79,9 @@ setMethod("show", "SummarizedExperimentLogged", function(object) {
     # Create a formatted string for the log
     n_logs <- object@log_history |> head()
     log_lines <- paste0(
-      "[", n_logs$Year, "-", n_logs$Month, "-", n_logs$Day, " ",
-      n_logs$Hour, ":", n_logs$Minute, ":", n_logs$Second, "] ",
+      "[", n_logs$Time, "] ",
       n_logs$Operation, ": ",
-      n_logs$Action, " ",
-      n_logs$Modification, " ",
-      n_logs$Type, "(s), ",
-      "left ", n_logs$Left, collapse = "\n")
+      n_logs$Message, collapse = "\n")
     log_output <- paste0("\nOperation log:\n", log_lines)
     
     # Use base R print for reliable output in both console and R Markdown
@@ -172,11 +167,10 @@ setMethod("mutate", signature = signature(.data = "SummarizedExperimentLogged"),
             
             # Generate log message
             if (length(new_cols) > 0) {
-              msg <- .format_log_message(operation="mutate", action="added", modification=length(new_cols), 
-              type="column", left=paste(new_cols, collapse = ", "))
+              msg <- .format_log_message(operation="mutate", message=paste0("added ", length(new_cols), " new column(s): ",
+             paste(new_cols, collapse = ", ")))
             } else if (length(modified_cols) > 0) {
-              msg <- .format_log_message(operation="mutate", action="modified", modification=length(modified_cols), 
-              type="column", left=paste(modified_cols, collapse = ", "))
+              msg <- .format_log_message(operation="mutate", message=paste0("modified column(s): ", paste(modified_cols, collapse = ", ")))
             } else {
               # No changes detected, preserve log history
               return(.update_log_history(result, .data, character(0)))
@@ -214,8 +208,10 @@ setMethod("select", signature = signature(.data = "SummarizedExperimentLogged"),
             
             # Generate log message
             if (diff > 0) {
-              msgs <- .format_log_message(operation="select", action="removed", modification=diff, 
-              type="column", left=length(post_cols_data))
+              msgs <- .format_log_message(operation="select", 
+              message=paste0("removed ", diff , " (",round((diff / length(pre_cols_data)) * 100),"%), ",
+                     length(post_cols_data), " column(s) remaining"
+                     ))
             } else {
               # No changes detected, preserve log history
               return(.update_log_history(result, .data, character(0)))
@@ -271,9 +267,14 @@ setMethod("extract",
             
             # Generate log message
             if (length(new_cols) > 0) {
-              msg <- .format_log_message(operation="extract", action="replaced", modification=col_name, 
-              type="column", left=paste(new_cols, collapse = ", "))
-                
+              msg <- .format_log_message(operation="extract", 
+              message=sprintf("extracted '%s' into %s: %s%s",
+                        col_name,
+                        ifelse(length(new_cols) > 1, "columns", "column"),
+                        paste(new_cols, collapse = ", "),
+                        if (remove && col_name %in% post_cols) "" 
+                        else if (remove) " (original removed)" 
+                        else " (original kept)"))
               return(.update_log_history(result, data, msg))
             }
             
@@ -284,10 +285,14 @@ setMethod("extract",
 #' Slice rows from a SummarizedExperimentLogged object
 #' 
 #' @rdname slice
+#' @param .data A SummarizedExperimentLogged object
+#' @param ... Row selection expressions
+#' @param .preserve If TRUE, preserves the grouping structure of the data
 #' @importFrom dplyr slice
 #' @importFrom rlang enquos
 #' @importFrom tibble as_tibble
 #' @export
+setGeneric("slice", function(.data, ..., .preserve = FALSE) standardGeneric("slice"))
 setMethod("slice",
           signature = signature(.data = "SummarizedExperimentLogged"),
           definition = function(.data, ..., .preserve = FALSE) {
@@ -312,14 +317,12 @@ setMethod("slice",
             if (pre_nrow != post_nrow) {
               removed <- setdiff(pre_rownames, post_rownames)
               n_removed <- pre_nrow - post_nrow
-              msg <- .format_log_message(operation="slice", action="removed", modification=n_removed, 
-              type="row", left=post_nrow)
-                #"slice",
-                #sprintf("Kept %d/%d rows (%.1f%%)%s",
-                 #       post_nrow, pre_nrow,
-                  #      100 * post_nrow / pre_nrow,
-                   #     paste("; removed", n_removed, "rows"))
-                #)
+              msg <- .format_log_message(operation="slice",
+                message=sprintf("kept %d/%d rows (%.1f%%)%s",
+                        post_nrow, pre_nrow,
+                        100 * post_nrow / pre_nrow,
+                        paste("; removed", n_removed, "rows"))
+              )
             } else {
               msg <- character(0)
             }
