@@ -71,7 +71,7 @@ result
 
 ```{r}
 # View the table with the complete log history
-result@log_history
+print(result@log_history,width=Inf)
 ```
 
 ## Base R Pipeline
@@ -103,7 +103,7 @@ result_base
 
 ```{r}
 # View the table with the complete log history
-result_base@log_history
+print(result_base@log_history,width=Inf)
 ```
 
 ```{r echo=FALSE}
