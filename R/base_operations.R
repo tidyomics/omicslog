@@ -22,33 +22,33 @@ setMethod("[", signature = signature(x = "SummarizedExperimentLogged"),
             
             # Generate log message if dimensions changed
             timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-            msgs <- character(0)
+            msgs <- list()
             
             # Check if rows (genes) changed
             if (pre_dim[1] != post_dim[1]) {
               genes_removed <- pre_dim[1] - post_dim[1]
               percent_removed <- round(genes_removed / pre_dim[1] * 100)
-              msgs <- c(msgs, paste0(
-                "[", timestamp, "] ",
-                "subset: removed ", genes_removed, " genes (", percent_removed, "%), ",
+              msgs <- c(msgs, list(Time = timestamp, Operation = "subset", 
+              Message = paste0(
+                "removed ", genes_removed, " genes (", percent_removed, "%), ",
                 post_dim[1], " genes remaining"
-              ))
+              ))) 
             }
             
             # Check if columns (samples) changed
             if (pre_dim[2] != post_dim[2]) {
               samples_removed <- pre_dim[2] - post_dim[2]
               percent_removed <- round(samples_removed / pre_dim[2] * 100)
-              msgs <- c(msgs, paste0(
-                "[", timestamp, "] ",
-                "subset: removed ", samples_removed, " samples (", percent_removed, "%), ",
+              msgs <- c(msgs, list(Time = timestamp, Operation = "subset", 
+              Message = paste0(
+                "removed ", samples_removed, " samples (", percent_removed, "%), ",
                 post_dim[2], " samples remaining"
-              ))
+              )))
             }
             
             # Add the messages to log history if any
             if (length(msgs) > 0) {
-              result@log_history <- c(x@log_history, msgs)
+              result@log_history <- dplyr::bind_rows(x@log_history, dplyr::bind_rows(msgs))
             } else {
               # Preserve existing log history
               result@log_history <- x@log_history
@@ -90,19 +90,19 @@ setMethod("$<-", signature = signature(x = "SummarizedExperimentLogged"),
             # Generate log message
             timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
             if (is_new_column) {
-              msg <- paste0(
-                "[", timestamp, "] ",
-                "colData<-: added new column '", name, "'"
-              )
+              msg <- list(Time = timestamp, Operation = "colData<-", 
+              Message = paste0(
+                "added new column '", name, "'"
+              ))
             } else {
-              msg <- paste0(
-                "[", timestamp, "] ",
-                "colData<-: modified column '", name, "'"
-              )
+              msg <- list(Time = timestamp, Operation = "colData<-", 
+              Message = paste0(
+                "modified column '", name, "'"
+              ))
             }
             
             # Add the message to log history
-            result@log_history <- c(x@log_history, msg)
+            result@log_history <- dplyr::bind_rows(x@log_history, dplyr::bind_rows(msgs))
             return(result)
           })
 
@@ -134,21 +134,20 @@ setMethod("$<-", signature = signature(x = "SummarizedExperimentLogged"),
 
   # Log added columns (all in one message, capitalized, plural, colon)
   if (length(added_cols) > 0) {
-    msg <- paste0(
-      "[", timestamp, "] ",
-      "colData<-: added ", length(added_cols), " new column(s): ",
+    msg <- list(Time = timestamp, Operation = "colData<-", 
+    Message = paste0(
+      "added ", length(added_cols), " new column(s): ",
       paste(added_cols, collapse = ", ")
-    )
+    )) 
     log_messages <- c(log_messages, msg)
   }
 
   # Log modified columns (one per column)
   if (length(modified_cols) > 0) {
     for (col in modified_cols) {
-      msg <- paste0(
-        "[", timestamp, "] ",
-        "colData<-: modified column '", col, "'"
-      )
+      msg <- list(Time = timestamp, Operation = "colData<-", Message = paste0(
+        "modified column '", col, "'"
+      ))
       log_messages <- c(log_messages, msg)
     }
   }
@@ -158,7 +157,7 @@ setMethod("$<-", signature = signature(x = "SummarizedExperimentLogged"),
 
   # Update log history if there were changes
   if (length(log_messages) > 0) {
-    x@log_history <- c(x@log_history, log_messages)
+    x@log_history <- dplyr::bind_rows(x@log_history, dplyr::bind_rows(log_messages))
   }
 
   return(x)
