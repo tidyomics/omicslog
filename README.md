@@ -34,25 +34,38 @@ result <-
   filter(.feature == "ENSG00000000003") |>
   slice(3)
 
-# View the object with its complete log history
+# View the object with the top log history as text
 result
-#> # A SummarizedExperiment-tibble abstraction: 1 × 22
-#> # Features=1 | Samples=1 | Assays=counts
-#>   .feature     .sample counts SampleName cell  treat Run   avgLength 
-#>   <chr>        <chr>    <int> <fct>      <fct> <chr> <chr>     <int>  
-#> 1 ENSG0000000… SRR103…   1138 GSM1275870 N080… untrt srr1…       120 
-#> # ℹ 9 more variables: gene_name <chr>, entrezid <int>, gene_biotype <chr>, 
-#> # gene_seq_start <int>, gene_seq_end <int>, seq_name <chr>, seq_strand <int>, 
-#> #  seq_coord_system <int>, symbol <chr>
-#> 
+#> class: SummarizedExperimentLogged 
+#> dim: 1 4 
+#> metadata(3): '' latest_filter_scope_report latest_mutate_scope_report
+#> assays(1): counts
+#> rownames(1): ENSG00000000003
+#> rowData names(10): gene_id gene_name ... seq_coord_system symbol
+#> colnames(4): SRR1039508 SRR1039512 SRR1039516 SRR1039520
+#> colData names(10): SampleName cell ... BioSample dex_upper
+#>
 #> Operation log:
-#> [2025-06-09 18:34:15] filter: removed 4 samples (50%), 4 samples remaining
-#> [2025-06-09 18:34:15] select: removed 1 (11%), 8 column(s) remaining
-#> [2025-06-09 18:34:16] mutate: added 1 new column(s): dex_upper
-#> [2025-06-09 18:34:17] extract: extracted 'dex' into column: treat (original removed)
-#> [2025-06-09 18:34:17] mutate: modified column(s): Run
-#> [2025-06-09 18:34:17] filter: removed 63676 genes (100%), 1 genes remaining
-#> [2025-06-09 18:34:18] slice: Kept 1/4 rows (25.0%); removed 3 rows
+#> [2026-05-19 16:28:12] filter: removed 4 sample(s) (50%), 4 sample(s) remaining
+#> [2026-05-19 16:28:12] mutate: added 1 new column(s): dex_upper
+#> [2026-05-19 16:28:12] mutate: modified column(s): Run
+#> [2026-05-19 16:28:13] filter: removed 63676 gene(s) (100%), 1 gene(s) remaining 
+
+# View the table with the complete log history
+print(result@log_history,width=Inf)
+#> # A tibble: 4 × 3
+#>   Time                Operation
+#>   <chr>               <chr>    
+#> 1 2026-05-19 16:28:12 filter   
+#> 2 2026-05-19 16:28:12 mutate   
+#> 3 2026-05-19 16:28:12 mutate   
+#> 4 2026-05-19 16:28:13 filter   
+#>   Message                                          
+#>   <chr>                                            
+#> 1 removed 4 sample(s) (50%), 4 sample(s) remaining 
+#> 2 added 1 new column(s): dex_upper                 
+#> 3 modified column(s): Run                          
+#> 4 removed 63676 gene(s) (100%), 1 gene(s) remaining
 ```
 
 ## Base R Pipeline
@@ -90,62 +103,75 @@ result_base
 #> colData names(10): SampleName cell ... BioSample dex_upper
 #> 
 #> Operation log:
-#> [2025-06-05 11:02:29] subset: removed 4 samples (50%), 4 samples remaining
-#> [2025-06-05 11:02:29] colData<-: added 1 new column(s): dex_upper
-#> [2025-06-05 11:02:29] colData<-: modified column 'Run'
-#> [2025-06-05 11:02:29] subset: removed 63676 genes (100%), 1 genes remaining
+#> [2026-05-19 16:34:15] subset: removed 4 samples (50%), 4 samples remaining
+#> [2026-05-19 16:34:15] colData<-: added 1 new column(s): dex_upper
+#> [2026-05-19 16:34:15] colData<-: modified column 'Run'
+#> [2026-05-19 16:34:15] subset: removed 63676 genes (100%), 1 genes remaining
+
+# View the table with the complete log history
+print(result_base@log_history,width=Inf)
+#> # A tibble: 4 × 3
+#>   Time                Operation Message                                      
+#>   <chr>               <chr>     <chr>                                        
+#> 1 2026-05-19 16:34:15 subset    removed 4 samples (50%), 4 samples remaining 
+#> 2 2026-05-19 16:34:15 colData<- added 1 new column(s): dex_upper             
+#> 3 2026-05-19 16:34:15 colData<- modified column 'Run'                        
+#> 4 2026-05-19 16:34:15 subset    removed 63676 genes (100%), 1 genes remaining
 ```
 
 # Session Info
 
 ``` r
 sessionInfo()
-#> R version 4.5.0 (2025-04-11)
-#> Platform: x86_64-apple-darwin20
-#> Running under: macOS Sonoma 14.6.1
+#> R version 4.5.3 (2026-03-11)
+#> Platform: x86_64-conda-linux-gnu
+#> Running under: Ubuntu 24.04.4 LTS
 #> 
 #> Matrix products: default
-#> BLAS:   /Library/Frameworks/R.framework/Versions/4.5-x86_64/Resources/lib/libRblas.0.dylib 
-#> LAPACK: /Library/Frameworks/R.framework/Versions/4.5-x86_64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1
+#> BLAS/LAPACK: /home/juan/miniconda3/envs/r453/lib/libopenblasp-r0.3.30.so;  LAPACK version 3.12.0
 #> 
 #> locale:
-#> [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+#>  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+#>  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+#>  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+#>  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+#>  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+#> [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
 #> 
-#> time zone: Australia/Adelaide
-#> tzcode source: internal
+#> time zone: Europe/Berlin
+#> tzcode source: system (glibc)
 #> 
 #> attached base packages:
 #> [1] stats4    stats     graphics  grDevices utils     datasets  methods  
 #> [8] base     
 #> 
 #> other attached packages:
-#>  [1] omicslog_0.99.0                 ggplot2_3.5.2                  
-#>  [3] tidyr_1.3.1                     dplyr_1.1.4                    
-#>  [5] tidySummarizedExperiment_1.18.1 ttservice_0.4.1                
-#>  [7] SummarizedExperiment_1.38.1     Biobase_2.68.0                 
-#>  [9] GenomicRanges_1.60.0            GenomeInfoDb_1.44.0            
-#> [11] IRanges_2.42.0                  S4Vectors_0.46.0               
-#> [13] BiocGenerics_0.54.0             generics_0.1.4                 
-#> [15] MatrixGenerics_1.20.0           matrixStats_1.5.0              
+#>  [1] omicslog_0.99.0                 ggplot2_4.0.2                  
+#>  [3] tidyr_1.3.2                     dplyr_1.2.0                    
+#>  [5] tidySummarizedExperiment_1.20.1 ttservice_0.5.3                
+#>  [7] SummarizedExperiment_1.40.0     Biobase_2.70.0                 
+#>  [9] GenomicRanges_1.62.1            Seqinfo_1.0.0                  
+#> [11] IRanges_2.44.0                  S4Vectors_0.48.0               
+#> [13] BiocGenerics_0.56.0             generics_0.1.4                 
+#> [15] MatrixGenerics_1.22.0           matrixStats_1.5.0              
 #> 
 #> loaded via a namespace (and not attached):
-#>  [1] gtable_0.3.6            xfun_0.52               bslib_0.9.0            
-#>  [4] htmlwidgets_1.6.4       lattice_0.22-7          vctrs_0.6.5            
-#>  [7] tools_4.5.0             tibble_3.2.1            fansi_1.0.6            
-#> [10] pkgconfig_2.0.3         Matrix_1.7-3            data.table_1.17.4      
-#> [13] RColorBrewer_1.1-3      lifecycle_1.0.4         GenomeInfoDbData_1.2.14
-#> [16] compiler_4.5.0          farver_2.1.2            stringr_1.5.1          
-#> [19] htmltools_0.5.8.1       sass_0.4.10             yaml_2.3.10            
-#> [22] lazyeval_0.2.2          plotly_4.10.4           pillar_1.10.2          
-#> [25] crayon_1.5.3            jquerylib_0.1.4         ellipsis_0.3.2         
-#> [28] DelayedArray_0.34.1     cachem_1.1.0            abind_1.4-8            
-#> [31] tidyselect_1.2.1        digest_0.6.37           stringi_1.8.7          
-#> [34] purrr_1.0.4             rprojroot_2.0.4         fastmap_1.2.0          
-#> [37] grid_4.5.0              cli_3.6.5               SparseArray_1.8.0      
-#> [40] magrittr_2.0.3          S4Arrays_1.8.1          utf8_1.2.5             
-#> [43] withr_3.0.2             scales_1.4.0            UCSC.utils_1.4.0       
-#> [46] rmarkdown_2.29          XVector_0.48.0          httr_1.4.7             
-#> [49] evaluate_1.0.3          knitr_1.50              viridisLite_0.4.2      
-#> [52] rlang_1.1.6             glue_1.8.0              rstudioapi_0.17.1      
-#> [55] jsonlite_2.0.0          R6_2.6.1
+#>  [1] gtable_0.3.6        xfun_0.56           htmlwidgets_1.6.4  
+#>  [4] lattice_0.22-9      vctrs_0.7.1         tools_4.5.3        
+#>  [7] tibble_3.3.1        pkgconfig_2.0.3     Matrix_1.7-4       
+#> [10] data.table_1.17.8   RColorBrewer_1.1-3  S7_0.2.1           
+#> [13] desc_1.4.3          lifecycle_1.0.5     compiler_4.5.3     
+#> [16] farver_2.1.2        stringr_1.6.0       codetools_0.2-20   
+#> [19] htmltools_0.5.9     lazyeval_0.2.2      plotly_4.12.0      
+#> [22] pillar_1.11.1       ellipsis_0.3.2      DelayedArray_0.36.0
+#> [25] abind_1.4-8         commonmark_2.0.0    tidyselect_1.2.1   
+#> [28] digest_0.6.39       stringi_1.8.7       purrr_1.2.1        
+#> [31] rprojroot_2.1.1     fastmap_1.2.0       grid_4.5.3         
+#> [34] cli_3.6.5           SparseArray_1.10.8  magrittr_2.0.4     
+#> [37] S4Arrays_1.10.1     pkgbuild_1.4.8      utf8_1.2.6         
+#> [40] withr_3.0.2         scales_1.4.0        roxygen2_8.0.0     
+#> [43] XVector_0.50.0      httr_1.4.8          otel_0.2.0         
+#> [46] evaluate_1.0.5      knitr_1.51          viridisLite_0.4.3  
+#> [49] rlang_1.1.7         glue_1.8.0          xml2_1.5.2         
+#> [52] pkgload_1.5.2       jsonlite_2.0.0      R6_2.6.1
 ```

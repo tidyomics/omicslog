@@ -65,8 +65,13 @@ result <-
   mutate(Run = tolower(Run)) |> 
   filter(.feature == "ENSG00000000003")
 
-# View the object with its complete log history
+# View the object with the top log history as text
 result
+```
+
+```{r}
+# View the table with the complete log history
+print(result@log_history,width=Inf)
 ```
 
 ## Base R Pipeline
@@ -92,8 +97,13 @@ colData(result_base)$Run <- tolower(colData(result_base)$Run)
 # Filter features
 result_base <- result_base[rownames(result_base) == "ENSG00000000003", ]
 
-# View the object with its complete log history
+# View the object with the top log history as text
 result_base
+```
+
+```{r}
+# View the table with the complete log history
+print(result_base@log_history,width=Inf)
 ```
 
 ```{r echo=FALSE}

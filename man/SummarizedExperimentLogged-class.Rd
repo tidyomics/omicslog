@@ -12,6 +12,6 @@ log when the object is printed.
 \section{Slots}{
 
 \describe{
-\item{\code{log_history}}{Character vector storing the history of operations}
+\item{\code{log_history}}{A tibble storing the history of operations}
 }}
 
