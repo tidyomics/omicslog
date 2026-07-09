@@ -83,6 +83,9 @@ setMethod("$<-", signature = signature(x = "SummarizedExperimentLogged"),
           function(x, name, value) {
             # Check if column exists
             is_new_column <- !(name %in% colnames(colData(x)))
+
+            # Check if new assay is being added
+            is_new_assay <- !(name %in% names(assays(x)))
             
             # Apply the modification using parent class method
             result <- callNextMethod(x, name, value)
@@ -94,7 +97,12 @@ setMethod("$<-", signature = signature(x = "SummarizedExperimentLogged"),
               Message = paste0(
                 "added new column '", name, "'"
               ))
-            } else {
+            }else if(is_new_assay) {
+              msg <- list(Time = timestamp, Operation = "assays<-", 
+              Message = paste0(
+                "added new assay '", name, "'"
+              ))
+            }else {
               msg <- list(Time = timestamp, Operation = "colData<-", 
               Message = paste0(
                 "modified column '", name, "'"
@@ -163,6 +171,61 @@ setMethod("$<-", signature = signature(x = "SummarizedExperimentLogged"),
   return(x)
 }
 
+# Helper for assays<- logging and update
+.assays_logged_update <- function(x, value, result) {
+  # Get original assay names and values
+  original_assays <- names(assays(x))
+  original_values <- assays(x)
+
+  # Get new assay names
+  new_assays <- names(value)
+
+  # Find added and modified assays
+  added_assays <- setdiff(new_assays, original_assays)
+  existing_assays <- intersect(new_assays, original_assays)
+
+  # Check for modifications in existing assays
+  modified_assays <- character(0)
+  for (assay in existing_assays) {
+    if (!identical(value[[assay]], original_values[[assay]])) {
+      modified_assays <- c(modified_assays, assay)
+    }
+  }
+
+  # Generate log messages
+  timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+  log_messages <- character(0)
+
+  # Log added assays (all in one message, capitalized, plural, colon)
+  if (length(added_assays) > 0) {
+    msg <- list(Time = timestamp, Operation = "assays<-",
+    Message = paste0(
+      "added ", length(added_assays), " new assay(s): ",
+      paste(added_assays, collapse = ", ")
+    ))
+    log_messages <- c(log_messages, msg)
+  }
+
+  # Log modified assays (one per assay)
+  if (length(modified_assays) > 0) {
+    for (assay in modified_assays) {
+      msg <- list(Time = timestamp, Operation = "assays<-", Message = paste0(
+        "modified assay '", assay, "'"
+      ))
+      log_messages <- c(log_messages, msg)
+    }
+  }
+
+  # Update log history if there were changes
+  if (length(log_messages) > 0) {
+    result@log_history <- dplyr::bind_rows(x@log_history, dplyr::bind_rows(log_messages))
+  } else {
+    result@log_history <- x@log_history
+  }
+
+  return(result)
+}
+
 #' Assign column to colData using `colData<-` for SummarizedExperimentLogged
 #' @rdname colData
 #' @export
@@ -176,4 +239,13 @@ setMethod("colData<-", signature = signature(x = "SummarizedExperimentLogged", v
 setMethod("colData<-", signature = signature(x = "SummarizedExperimentLogged", value = "DFrame"),
   function(x, value) {
     .colData_logged_update(x, value)
+  })
+
+#' Assign List to assays using `assays<-` for SummarizedExperimentLogged
+#' @rdname assays
+#' @export
+setMethod("assays<-", signature = signature(x = "SummarizedExperimentLogged", value = "SimpleList"),
+  function(x, withDimnames = TRUE, ..., value) {
+    result <- callNextMethod(x, withDimnames = withDimnames, ..., value = value)
+    .assays_logged_update(x, value, result)
   })
