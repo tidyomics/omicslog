@@ -1,4 +1,14 @@
 # Helper functions for logging
+.base_class <- function(x) {
+  if (is(x, "SingleCellExperiment")) "SingleCellExperiment" else "SummarizedExperiment"
+}
+
+.unlog <- function(x) as(x, .base_class(x), strict = TRUE)
+
+.relog <- function(obj, original) {
+  new(class(original), obj, log_history = original@log_history)
+}
+
 .get_timestamp <- function() {
   format(Sys.time(), "%Y-%m-%d %H:%M:%S")
 }
@@ -27,16 +37,16 @@
     genes_removed <- pre_dim[1] - post_dim[1]
     percent_removed <- round(genes_removed / pre_dim[1] * 100)
     msgs <- c(msgs, list(.format_log_message(operation,
-     paste0("removed ", genes_removed, " gene(s) (", percent_removed, "%), ",
-             post_dim[1], " gene(s) remaining"))))
+     paste0("removed ", genes_removed, " feature(s) (", percent_removed, "%), ",
+             post_dim[1], " feature(s) remaining"))))
   }
 
   if (pre_dim[2] != post_dim[2]) {
     samples_removed <- pre_dim[2] - post_dim[2]
     percent_removed <- round(samples_removed / pre_dim[2] * 100)
     msgs <- c(msgs, list(.format_log_message(operation,
-      paste0("removed ", samples_removed, " sample(s) (", percent_removed, "%), ",
-             post_dim[2], " sample(s) remaining"))))
+      paste0("removed ", samples_removed, " observation(s) (", percent_removed, "%), ",
+             post_dim[2], " observation(s) remaining"))))
   }
 
   return(msgs)
@@ -49,7 +59,7 @@
 #' when the object is printed.
 #'
 #' @param se A SummarizedExperiment or derived object
-#' @return A SummarizedExperimentLogged object with tracking capabilities
+#' @return A ExperimentLogged object with tracking capabilities
 #' @importFrom tibble tibble
 #' @export
 #' @examples
@@ -60,17 +70,15 @@
 #'     filter(condition == "treated")
 #' }
 log_start <- function(se) {
-  if (!inherits(se, "SummarizedExperiment")) {
-    stop("Input must be a SummarizedExperiment or subclass.")
-  }
-  new("SummarizedExperimentLogged", se, log_history = tibble(Time = character(),
-  Operation = character(), Message = character()))
+  empty <- tibble(Time = character(), Operation = character(), Message = character())
+  cls <- if (is(se, "SingleCellExperiment")) "SingleCellExperimentLogged"
+         else if (is(se, "SummarizedExperiment")) "SummarizedExperimentLogged"
+         else stop("Input must be a SummarizedExperiment or SingleCellExperiment.")
+  new(cls, se, log_history = empty)
 }
 
-#' @rdname log_start
-#' @param object A SummarizedExperimentLogged object
-#' @export
-setMethod("show", "SummarizedExperimentLogged", function(object) {
+
+.logged_show <- function(object) {
   # Call the parent show method first
   callNextMethod()
 
@@ -87,30 +95,38 @@ setMethod("show", "SummarizedExperimentLogged", function(object) {
     # Use base R print for reliable output in both console and R Markdown
     cat(log_output, "\n")
   }
-})
+}
 
-#' Filter rows and columns of a SummarizedExperimentLogged object
+# show uses callNextMethod(), which has no parent to call from a class union,
+# so it is registered once per concrete class.
+#' @rdname log_start
+#' @param object A ExperimentLogged object
+#' @export
+setMethod("show", "SummarizedExperimentLogged", .logged_show)
+
+#' @rdname log_start
+#' @export
+setMethod("show", "SingleCellExperimentLogged", .logged_show)
+
+#' Filter rows and columns of a ExperimentLogged object
 #'
 #' @rdname filter
-#' @param .data A SummarizedExperimentLogged object
+#' @param .data A ExperimentLogged object
 #' @param ... Logical expressions used for filtering
 #' @importFrom dplyr filter
 #' @export
-setMethod("filter", signature = signature(.data = "SummarizedExperimentLogged"),
-          definition = function(.data, ...) {
+filter.SummarizedExperimentLogged <- function(.data, ...) {
           
             # Get dimensions before filtering
             pre_dim <- dim(.data)
 
             # Drop down to plain SE so dispatch goes to tidySummarizedExperiment's
             # filter.SummarizedExperiment method, not back to this one.
-            se_plain  <- as(.data, "SummarizedExperiment", strict = TRUE)
+            se_plain  <- .unlog(.data)
             filtered  <- dplyr::filter(se_plain, ...)
 
-            # Re-wrap as SummarizedExperimentLogged, preserving log_history explicitly.
-            result <- new("SummarizedExperimentLogged",
-                          filtered,
-                          log_history = .data@log_history)
+            # Re-wrap as ExperimentLogged, preserving log_history explicitly.
+            result <- .relog(filtered, .data)
 
             # Get dimensions after filtering
             post_dim <- dim(result)
@@ -120,19 +136,21 @@ setMethod("filter", signature = signature(.data = "SummarizedExperimentLogged"),
 
             # Update log history
             return(.update_log_history(result, .data, msgs))
-          })
+}
 
-#' Modify columns of a SummarizedExperimentLogged object
+#' @rdname filter
+#' @export
+filter.SingleCellExperimentLogged <- filter.SummarizedExperimentLogged
+
+#' Modify columns of a ExperimentLogged object
 #'
 #' @rdname mutate
-#' @param .data A SummarizedExperimentLogged object
+#' @param .data A ExperimentLogged object
 #' @param ... Name-value pairs of expressions used to modify columns
 #' @importFrom dplyr mutate
 #' @importFrom rlang enquos
 #' @export
-
-setMethod("mutate", signature = signature(.data = "SummarizedExperimentLogged"),
-          definition = function(.data, ...) {
+mutate.SummarizedExperimentLogged <- function(.data, ...) {
             # Capture the pre-mutation state
             pre_cols_data <- colnames(colData(.data))
             pre_assay_names <- names(assays(.data))
@@ -143,13 +161,11 @@ setMethod("mutate", signature = signature(.data = "SummarizedExperimentLogged"),
             
             # Drop down to plain SE so dispatch goes to tidySummarizedExperiment's
             # filter.SummarizedExperiment method, not back to this one.
-            se_plain  <- as(.data, "SummarizedExperiment", strict = TRUE)
+            se_plain  <- .unlog(.data)
             mutated  <- dplyr::mutate(se_plain, ...)
 
-            # Re-wrap as SummarizedExperimentLogged, preserving log_history explicitly.
-            result <- new("SummarizedExperimentLogged",
-                          mutated,
-                          log_history = .data@log_history)
+            # Re-wrap as ExperimentLogged, preserving log_history explicitly.
+            result <- .relog(mutated, .data)
             
             # Capture the post-mutation state
             post_cols_data <- colnames(colData(result))
@@ -178,28 +194,29 @@ setMethod("mutate", signature = signature(.data = "SummarizedExperimentLogged"),
             
             # Update log history
             return(.update_log_history(result, .data, msg))
-          }) 
+}
 
-#' Filter columns of a SummarizedExperimentLogged object
+#' @rdname mutate
+#' @export
+mutate.SingleCellExperimentLogged <- mutate.SummarizedExperimentLogged
+
+#' Filter columns of a ExperimentLogged object
 #' 
 #' @rdname select
-#' @param .data A SummarizedExperimentLogged object
+#' @param .data A ExperimentLogged object
 #' @param ... Name of columns to select or deselect
 #' @importFrom dplyr select
 #' @export
-setMethod("select", signature = signature(.data = "SummarizedExperimentLogged"),
-          definition = function(.data, ...) {
+select.SummarizedExperimentLogged <- function(.data, ...) {
             # Get dimensions before filtering
             pre_cols_data <- colnames(colData(.data))
             
             # Apply the filter
-            se_plain  <- as(.data, "SummarizedExperiment", strict = TRUE)
+            se_plain  <- .unlog(.data)
             selected  <- dplyr::select(se_plain, ...)
 
-            # Re-wrap as SummarizedExperimentLogged, preserving log_history explicitly.
-            result <- new("SummarizedExperimentLogged",
-                          selected,
-                          log_history = .data@log_history)
+            # Re-wrap as ExperimentLogged, preserving log_history explicitly.
+            result <- .relog(selected, .data)
             
             # Get dimensions after filtering
             post_cols_data <- colnames(colData(result))
@@ -219,12 +236,16 @@ setMethod("select", signature = signature(.data = "SummarizedExperimentLogged"),
             
             # Update log history
             return(.update_log_history(result, .data, msgs))
-          })
+}
 
-#' Extract values from a column into multiple columns in a SummarizedExperimentLogged object
+#' @rdname select
+#' @export
+select.SingleCellExperimentLogged <- select.SummarizedExperimentLogged
+
+#' Extract values from a column into multiple columns in a ExperimentLogged object
 #'
 #' @rdname extract
-#' @param .data A SummarizedExperimentLogged object
+#' @param data A ExperimentLogged object
 #' @param col Column to extract from
 #' @param into Names of new variables to create
 #' @param regex A regular expression to extract values
@@ -234,16 +255,7 @@ setMethod("select", signature = signature(.data = "SummarizedExperimentLogged"),
 #' @importFrom tidyr extract
 #' @importFrom rlang enquo as_name
 #' @export
-setMethod("extract",
-          signature = signature(
-            data = "SummarizedExperimentLogged",
-            col = "ANY",
-            into = "ANY",
-            regex = "ANY",
-            remove = "ANY",
-            convert = "ANY"
-          ),
-          function(data, col, into, regex = "([[:alnum:]]+)", 
+extract.SummarizedExperimentLogged <- function(data, col, into, regex = "([[:alnum:]]+)",
                    remove = TRUE, convert = FALSE, ...) {
             
             # Capture pre-state
@@ -251,15 +263,13 @@ setMethod("extract",
             col_name <- rlang::as_name(rlang::enquo(col))
             
             # Perform extraction using tidyr's method
-            se_plain  <- as(data, "SummarizedExperiment", strict = TRUE)
+            se_plain  <- .unlog(data)
             colData(se_plain) <- colData(se_plain) |> as.data.frame() |>
               tidyr::extract({{ col }}, into, regex,
                                      remove = remove, convert = convert, ...) |>
               S4Vectors::DataFrame()
 
-            result <- new("SummarizedExperimentLogged",
-                          se_plain,
-                          log_history = data@log_history)
+            result <- .relog(se_plain, data)
             
             # Capture post-state
             post_cols <- colnames(colData(result))
@@ -279,35 +289,34 @@ setMethod("extract",
             }
             
             return(.update_log_history(result, data, character(0)))
-          })
+}
+
+#' @rdname extract
+#' @export
+extract.SingleCellExperimentLogged <- extract.SummarizedExperimentLogged
 
 
-#' Slice rows from a SummarizedExperimentLogged object
+#' Slice rows from a ExperimentLogged object
 #' 
 #' @rdname slice
-#' @param .data A SummarizedExperimentLogged object
+#' @param .data A ExperimentLogged object
 #' @param ... Row selection expressions
 #' @param .preserve If TRUE, preserves the grouping structure of the data
 #' @importFrom dplyr slice
 #' @importFrom rlang enquos
 #' @importFrom tibble as_tibble
 #' @export
-setGeneric("slice", function(.data, ..., .preserve = FALSE) standardGeneric("slice"))
-setMethod("slice",
-          signature = signature(.data = "SummarizedExperimentLogged"),
-          definition = function(.data, ..., .preserve = FALSE) {
+slice.SummarizedExperimentLogged <- function(.data, ..., .preserve = FALSE) {
             
             # Capture pre-state
             pre_nrow <- as_tibble(.data) |> nrow()
             pre_rownames <- rownames(.data)
             
-            se_plain  <- as(.data, "SummarizedExperiment", strict = TRUE)
+            se_plain  <- .unlog(.data)
             sliced  <- dplyr::slice(se_plain, ..., .preserve = .preserve)
 
-            # Re-wrap as SummarizedExperimentLogged, preserving log_history explicitly.
-            result <- new("SummarizedExperimentLogged",
-                          sliced,
-                          log_history = .data@log_history)
+            # Re-wrap as ExperimentLogged, preserving log_history explicitly.
+            result <- .relog(sliced, .data)
             
             # Capture post-state
             post_nrow <- as_tibble(result) |> nrow()
@@ -329,4 +338,8 @@ setMethod("slice",
             
             # Update log history
             .update_log_history(result, .data, msg)
-          })
+}
+
+#' @rdname slice
+#' @export
+slice.SingleCellExperimentLogged <- slice.SummarizedExperimentLogged

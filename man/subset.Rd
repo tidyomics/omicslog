@@ -2,15 +2,18 @@
 % Please edit documentation in R/base_operations.R
 \name{[,SummarizedExperimentLogged,ANY,ANY,ANY-method}
 \alias{[,SummarizedExperimentLogged,ANY,ANY,ANY-method}
-\title{Subset a SummarizedExperimentLogged object}
+\alias{[,SingleCellExperimentLogged,ANY,ANY,ANY-method}
+\title{Subset a ExperimentLogged object}
 \usage{
 \S4method{[}{SummarizedExperimentLogged,ANY,ANY,ANY}(x, i, j, ..., drop = TRUE)
+
+\S4method{[}{SingleCellExperimentLogged,ANY,ANY,ANY}(x, i, j, ..., drop = TRUE)
 }
 \arguments{
-\item{x}{A SummarizedExperimentLogged object}
+\item{x}{A ExperimentLogged object}
 
 \item{i, j, ...}{Indices for subsetting}
 }
 \description{
-Subset a SummarizedExperimentLogged object
+Subset a ExperimentLogged object
 }

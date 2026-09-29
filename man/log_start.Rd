@@ -3,19 +3,22 @@
 \name{log_start}
 \alias{log_start}
 \alias{show,SummarizedExperimentLogged-method}
+\alias{show,SingleCellExperimentLogged-method}
 \title{Create a logging-enabled SummarizedExperiment object}
 \usage{
 log_start(se)
 
 \S4method{show}{SummarizedExperimentLogged}(object)
+
+\S4method{show}{SingleCellExperimentLogged}(object)
 }
 \arguments{
 \item{se}{A SummarizedExperiment or derived object}
 
-\item{object}{A SummarizedExperimentLogged object}
+\item{object}{A ExperimentLogged object}
 }
 \value{
-A SummarizedExperimentLogged object with tracking capabilities
+A ExperimentLogged object with tracking capabilities
 }
 \description{
 This function wraps a SummarizedExperiment object with logging capabilities.

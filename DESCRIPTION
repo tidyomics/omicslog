@@ -23,12 +23,18 @@ Roxygen: list(markdown = TRUE)
 biocViews: Infrastructure, DataRepresentation, Software, Visualization
 Imports:
     SummarizedExperiment,
+    SingleCellExperiment,
     methods,
     dplyr,
-    rlang
+    tidyr,
+    tibble,
+    rlang,
+    S4Vectors,
+    BiocGenerics
 Suggests:
     airway,
     tidySummarizedExperiment,
+    tidySingleCellExperiment,
     knitr,
     rmarkdown,
     BiocStyle,
@@ -37,4 +43,4 @@ VignetteBuilder: knitr
 Config/testthat/edition: 3
 Depends:
     R (>= 4.2.0)
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.0
