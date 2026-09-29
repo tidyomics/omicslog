@@ -2,12 +2,15 @@
 % Please edit documentation in R/base_operations.R
 \name{$<-,SummarizedExperimentLogged-method}
 \alias{$<-,SummarizedExperimentLogged-method}
-\title{Assign column to colData using \verb{$<-} for SummarizedExperimentLogged}
+\alias{$<-,SingleCellExperimentLogged-method}
+\title{Assign column to colData using \verb{$<-} for ExperimentLogged}
 \usage{
 \S4method{$}{SummarizedExperimentLogged}(x, name) <- value
+
+\S4method{$}{SingleCellExperimentLogged}(x, name) <- value
 }
 \description{
-Assign column to colData using \verb{$<-} for SummarizedExperimentLogged
+Assign column to colData using \verb{$<-} for ExperimentLogged
 }
 \examples{
 # Create a logged SummarizedExperiment
