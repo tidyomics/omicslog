@@ -23,12 +23,21 @@ exportMethods("$<-")
 exportMethods("[")
 exportMethods("assays<-")
 exportMethods("colData<-")
+exportMethods("reducedDim<-")
+exportMethods("reducedDims<-")
 exportMethods("rowData<-")
 exportMethods(show)
 import(SingleCellExperiment)
 import(SummarizedExperiment)
 import(methods)
 importFrom(BiocGenerics,colnames)
+importFrom(SingleCellExperiment,
+  "reducedDim<-",
+  "reducedDims<-",
+  reducedDim,
+  reducedDimNames,
+  reducedDims
+)
 importFrom(SummarizedExperiment,
   "colData<-",
   colData

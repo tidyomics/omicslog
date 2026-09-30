@@ -352,3 +352,134 @@ setMethod("assays<-", signature = signature(x = "SingleCellExperimentLogged", va
     result <- callNextMethod(x, withDimnames = withDimnames, ..., value = value)
     .assays_logged_update(x, value, result)
   })
+
+######################################
+#######################################
+#######################################
+
+# Helper for reducedDim<- logging and update. `type` may be a character name
+# or a numeric index (SingleCellExperiment also has a "missing" method, but
+# that one just resolves a name/index internally and calls back into
+# `reducedDim<-`, so it re-dispatches here rather than needing its own method).
+.reducedDim_logged_update <- function(x, type, value, result) {
+  # Get original reduced dimension names
+  original_dims <- reducedDimNames(x)
+
+  # Resolve the name of the reduced dimension being set
+  if (is.numeric(type)) {
+    name <- if (type >= 1 && type <= length(original_dims)) original_dims[type] else paste0("dim", type)
+  } else {
+    name <- type
+  }
+
+  is_new_dim <- !(name %in% original_dims)
+
+  # Generate log message
+  timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+  if (is_new_dim) {
+    msg <- list(Time = timestamp, Operation = "reducedDim<-",
+    Message = paste0(
+      "added new reduced dimension '", name, "' (", ncol(value), " dimension(s))"
+    ))
+  } else if (!identical(value, reducedDim(x, name))) {
+    msg <- list(Time = timestamp, Operation = "reducedDim<-",
+    Message = paste0(
+      "modified reduced dimension '", name, "'"
+    ))
+  } else {
+    # No changes detected, preserve log history
+    result@log_history <- x@log_history
+    return(result)
+  }
+
+  # Add the message to log history
+  result@log_history <- dplyr::bind_rows(x@log_history, dplyr::bind_rows(msg))
+  return(result)
+}
+
+#' Assign a matrix to a named reduced dimension using `reducedDim<-` for SingleCellExperimentLogged
+#' @rdname reducedDim
+#' @importFrom SingleCellExperiment reducedDim reducedDim<- reducedDimNames
+#' @export
+setMethod("reducedDim<-", signature = signature(x = "SingleCellExperimentLogged", type = "character"),
+  function(x, type, withDimnames = TRUE, ..., value) {
+    result <- callNextMethod(x, type, withDimnames = withDimnames, ..., value = value)
+    .reducedDim_logged_update(x, type, value, result)
+  })
+
+#' @rdname reducedDim
+#' @export
+setMethod("reducedDim<-", signature = signature(x = "SingleCellExperimentLogged", type = "numeric"),
+  function(x, type, withDimnames = TRUE, ..., value) {
+    result <- callNextMethod(x, type, withDimnames = withDimnames, ..., value = value)
+    .reducedDim_logged_update(x, type, value, result)
+  })
+
+######################################
+#######################################
+#######################################
+
+# Helper for reducedDims<- logging and update
+.reducedDims_logged_update <- function(x, value, result) {
+  # Get original reduced dimension names and values
+  original_dims <- reducedDimNames(x)
+  original_values <- reducedDims(x)
+
+  # Get new reduced dimension names
+  new_dims <- names(value)
+
+  # Find added and modified reduced dimensions
+  added_dims <- setdiff(new_dims, original_dims)
+  existing_dims <- intersect(new_dims, original_dims)
+
+  # Check for modifications in existing reduced dimensions
+  modified_dims <- character(0)
+  for (rd in existing_dims) {
+    if (!identical(value[[rd]], original_values[[rd]])) {
+      modified_dims <- c(modified_dims, rd)
+    }
+  }
+
+  # Generate log messages
+  timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+  log_messages <- character(0)
+
+  # Log added reduced dimensions (all in one message, capitalized, plural, colon)
+  if (length(added_dims) > 0) {
+    msg <- list(Time = timestamp, Operation = "reducedDims<-",
+    Message = paste0(
+      "added ", length(added_dims), " new reduced dimension(s): ",
+      paste(added_dims, collapse = ", ")
+    ))
+    log_messages <- c(log_messages, msg)
+  }
+
+  # Log modified reduced dimensions (one per dimension)
+  if (length(modified_dims) > 0) {
+    for (rd in modified_dims) {
+      msg <- list(Time = timestamp, Operation = "reducedDims<-", Message = paste0(
+        "modified reduced dimension '", rd, "'"
+      ))
+      log_messages <- c(log_messages, msg)
+    }
+  }
+
+  # Update log history if there were changes
+  if (length(log_messages) > 0) {
+    result@log_history <- dplyr::bind_rows(x@log_history, dplyr::bind_rows(log_messages))
+  } else {
+    result@log_history <- x@log_history
+  }
+
+  return(result)
+}
+
+#' Assign a List of matrices to reducedDims using `reducedDims<-` for SingleCellExperimentLogged
+#' @rdname reducedDims
+#' @importFrom SingleCellExperiment reducedDims reducedDims<- reducedDimNames
+#' @export
+setMethod("reducedDims<-", signature = signature(x = "SingleCellExperimentLogged"),
+  function(x, withDimnames = TRUE, ..., value) {
+    result <- callNextMethod(x, withDimnames = withDimnames, ..., value = value)
+    .reducedDims_logged_update(x, value, result)
+  })
