@@ -17,3 +17,12 @@
 \description{
 Subset a ExperimentLogged object
 }
+\examples{
+# Create a logged SummarizedExperiment
+if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
+  se <- tidySummarizedExperiment::pasilla
+  se_logged <- log_start(se)
+  
+  se_logged <- se_logged[1:10,]
+}
+}

@@ -3,17 +3,25 @@
 \name{mutate.SummarizedExperimentLogged}
 \alias{mutate.SummarizedExperimentLogged}
 \alias{mutate.SingleCellExperimentLogged}
-\title{Modify columns of a ExperimentLogged object}
+\title{Modify columns of An ExperimentLogged object}
 \usage{
 \method{mutate}{SummarizedExperimentLogged}(.data, ...)
 
 \method{mutate}{SingleCellExperimentLogged}(.data, ...)
 }
 \arguments{
-\item{.data}{A ExperimentLogged object}
+\item{.data}{An ExperimentLogged object}
 
 \item{...}{Name-value pairs of expressions used to modify columns}
 }
 \description{
-Modify columns of a ExperimentLogged object
+Modify columns of An ExperimentLogged object
+}
+\examples{
+if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
+  se <- tidySummarizedExperiment::pasilla
+  se_logged <- log_start(se)
+  result <- se_logged |>
+    mutate(type = sub("_end","",colData(se)$type))
+}
 }

@@ -3,19 +3,27 @@
 \name{slice.SummarizedExperimentLogged}
 \alias{slice.SummarizedExperimentLogged}
 \alias{slice.SingleCellExperimentLogged}
-\title{Slice rows from a ExperimentLogged object}
+\title{Slice rows from An ExperimentLogged object}
 \usage{
 \method{slice}{SummarizedExperimentLogged}(.data, ..., .preserve = FALSE)
 
 \method{slice}{SingleCellExperimentLogged}(.data, ..., .preserve = FALSE)
 }
 \arguments{
-\item{.data}{A ExperimentLogged object}
+\item{.data}{An ExperimentLogged object}
 
 \item{...}{Row selection expressions}
 
 \item{.preserve}{If TRUE, preserves the grouping structure of the data}
 }
 \description{
-Slice rows from a ExperimentLogged object
+Slice rows from An ExperimentLogged object
+}
+\examples{
+if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
+  se <- tidySummarizedExperiment::pasilla
+  se_logged <- log_start(se)
+  result <- se_logged |>
+    slice(1)
+}
 }

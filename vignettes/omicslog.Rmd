@@ -1,31 +1,13 @@
 ---
-title: "EXPERIMENTAL: Getting Started with omicslog"
-output: BiocStyle::html_document
+title: "Getting Started with omicslog"
+output:
+  BiocStyle::html_document:
+    toc: true
+    toc_float: true
 vignette: >
-  %\VignetteIndexEntry{EXPERIMENTAL: Getting Started with omicslog}
+  %\VignetteIndexEntry{Getting Started with omicslog}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-knit: >
-    (function(x, ...){
-        proj_root <- rprojroot::find_package_root_file() |> normalizePath()
-        rmarkdown::render(
-            x,
-            output_format = "html_document",
-            params = list(
-                demo_metadata = TRUE
-            )
-        )
-        rmarkdown::render(
-            x,
-            output_file = "README.md",
-            output_format = "github_document",
-            output_dir = proj_root,
-            knit_root_dir = proj_root,
-            params = list(
-                demo_metadata = FALSE
-            )
-        )
-    })
 ---
 
 ```{r, include = FALSE}
@@ -37,9 +19,17 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Introduction
+# Installation
 
-> **WARNING**: This package is EXPERIMENTAL and under active development. APIs and functionality may change without notice.
+You can install the `omicslog` package from Bioconductor using the following commands:
+
+```{r, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("omicslog")
+```
+
+# Introduction
 
 ```{r setup, message=FALSE}
 library(SummarizedExperiment)
@@ -48,7 +38,7 @@ library(omicslog)
 data(airway, package="airway")
 ```
 
-The `omicslog` package provides logging capabilities for `SummarizedExperiment` objects. 
+The `omicslog` package provides logging capabilities for `SingleCellExperiment` and `SummarizedExperiment` objects. 
 This is particularly useful for tracking transformations in complex analysis workflows.
 
 ## Pipeline Workflow
@@ -61,9 +51,13 @@ result <-
   airway |>
   log_start() |>
   filter(dex == "untrt") |>
+  select(!albut) |>
   mutate(dex_upper = toupper(dex)) |>
+  extract(col = dex,into = "treat") |>
   mutate(Run = tolower(Run)) |> 
-  filter(.feature == "ENSG00000000003")
+  filter(.feature == "ENSG00000000003") |>
+  slice(3)
+
 
 # View the object with the top log history as text
 result
@@ -109,6 +103,18 @@ print(result_base@log_history,width=Inf)
 ```{r echo=FALSE}
 # revert printing to Bioconductor style
 options(restore_SummarizedExperiment_show = FALSE)
+```
+
+# SingleCellExperiment Example
+
+`omicslog` also supports `SingleCellExperiment` objects. Here's an example using the `pbmc_small` dataset:
+
+```{r, message=TRUE, warning=TRUE}
+data(pbmc_small, package="tidySingleCellExperiment")
+pbmc_logged <- log_start(pbmc_small)
+pbmc_logged <- pbmc_logged[, colData(pbmc_logged)$groups == "g1"]
+pbmc_logged <- pbmc_logged[rownames(pbmc_logged) %in% c("ENSG00000198888", "ENSG00000198786"), ]
+pbmc_logged
 ```
 
 # Session Info

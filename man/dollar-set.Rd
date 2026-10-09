@@ -23,8 +23,5 @@ if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
   
   # Add new column
   colData(se_logged)$new_column <- rep("test", ncol(se_logged))
-  
-  # Print to see the log
-  se_logged
 }
 }
