@@ -1,26 +1,29 @@
 Package: omicslog
-Title: EXPERIMENTAL: Logging for High-Throughput Omics Data Analysis
+Title: Logging for High-Throughput Omics Data Analysis
 Version: 0.99.0
-Date: 2023-09-20
+Date: 2026-10-09
 Authors@R: c(
       person("Juan David", "Henao", role = c("aut","cre"),
-           email = "juan.henao@helmholtz-muenchen.de"),
+           email = "judhenaosa@unal.edu.co",
+           comment = c(ORCID = "0000-0003-0783-1432")),
     person("Stefano", "Mangiola", role = c("aut"),
            email = "mangiolastefano@gmail.com",
            comment = c(ORCID = "0000-0001-7474-836X")),
       person("Michael", "Love", role = c("ctb"),
            email = "michaelisaiahlove@gmail.com")
       )
-Description: EXPERIMENTAL: Provides logging capabilities for SummarizedExperiment objects. 
-    This package extends SummarizedExperiment to include tracking of operations
-    such as filtering and column modifications. The log is displayed when the
+Description: Provides logging capabilities for SingleCellExperiment and SummarizedExperiment objects. 
+    This package extends these classes to include tracking of operations
+    such as filtering and column/row-level modifications. The log is displayed when the
     object is printed, helping users keep track of the data transformations
     applied during analysis. This is particularly useful for complex analysis
     workflows where multiple filtering and transformation steps are applied.
 License: Artistic-2.0
 Encoding: UTF-8
+URL: https://github.com/tidyomics/omicslog
+BugReports: https://github.com/tidyomics/omicslog/issues
 Roxygen: list(markdown = TRUE)
-biocViews: Infrastructure, DataRepresentation, Software, Visualization
+biocViews: Infrastructure, DataRepresentation, Software, SingleCell, Transcriptomics
 Imports:
     SummarizedExperiment,
     SingleCellExperiment,
@@ -42,5 +45,5 @@ Suggests:
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Depends:
-    R (>= 4.2.0)
+    R (>= 4.5.0)
 Config/roxygen2/version: 8.1.0

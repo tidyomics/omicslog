@@ -15,10 +15,10 @@ log_start(se)
 \arguments{
 \item{se}{A SummarizedExperiment or derived object}
 
-\item{object}{A ExperimentLogged object}
+\item{object}{An ExperimentLogged object}
 }
 \value{
-A ExperimentLogged object with tracking capabilities
+An ExperimentLogged object with tracking capabilities
 }
 \description{
 This function wraps a SummarizedExperiment object with logging capabilities.

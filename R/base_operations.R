@@ -13,38 +13,50 @@
             # Get dimensions after subsetting
             post_dim <- dim(result)
             
-            # Generate log message if dimensions changed
-            timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-            msgs <- list()
-            
             # Check if rows (genes) changed
             if (pre_dim[1] != post_dim[1]) {
+              # Generate log message if dimensions changed
+              timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+              msgs <- list()
+              
               genes_removed <- pre_dim[1] - post_dim[1]
               percent_removed <- round(genes_removed / pre_dim[1] * 100)
               msgs <- c(msgs, list(Time = timestamp, Operation = "subset", 
               Message = paste0(
-                "removed ", genes_removed, " genes (", percent_removed, "%), ",
-                post_dim[1], " genes remaining"
+                "removed ", genes_removed, " features (", percent_removed, "%), ",
+                post_dim[1], " features remaining"
               ))) 
+
+              # Add the messages to log history if any
+              if (length(msgs) > 0) {
+                result@log_history <- dplyr::bind_rows(x@log_history, dplyr::bind_rows(msgs))
+              } else {
+                # Preserve existing log history
+                result@log_history <- x@log_history
+              }
             }
             
             # Check if columns (samples) changed
             if (pre_dim[2] != post_dim[2]) {
+              # Generate log message if dimensions changed
+              timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+              msgs <- list()
+              
               samples_removed <- pre_dim[2] - post_dim[2]
               percent_removed <- round(samples_removed / pre_dim[2] * 100)
               msgs <- c(msgs, list(Time = timestamp, Operation = "subset", 
               Message = paste0(
-                "removed ", samples_removed, " samples (", percent_removed, "%), ",
-                post_dim[2], " samples remaining"
+                "removed ", samples_removed, " observations (", percent_removed, "%), ",
+                post_dim[2], " observations remaining"
               )))
-            }
-            
-            # Add the messages to log history if any
-            if (length(msgs) > 0) {
-              result@log_history <- dplyr::bind_rows(x@log_history, dplyr::bind_rows(msgs))
-            } else {
-              # Preserve existing log history
-              result@log_history <- x@log_history
+
+              # Add the messages to log history if any
+              if (length(msgs) > 0) {
+                result@log_history <- dplyr::bind_rows(result@log_history, dplyr::bind_rows(msgs))
+              } else {
+                # Preserve existing log history
+                result@log_history <- x@log_history
+              }
             }
             
             return(result)
@@ -58,6 +70,15 @@
 #' @param x A ExperimentLogged object
 #' @param i,j,... Indices for subsetting
 #' @export
+#' @examples
+#' # Create a logged SummarizedExperiment
+#' if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
+#'   se <- tidySummarizedExperiment::pasilla
+#'   se_logged <- log_start(se)
+#'   
+#'   se_logged <- se_logged[1:10,1:5]
+#'   se_logged
+#' }
 setMethod("[", signature = signature(x = "SummarizedExperimentLogged"), .logged_subset)
 
 #' @rdname subset
@@ -94,7 +115,7 @@ setMethod("[", signature = signature(x = "SingleCellExperimentLogged"), .logged_
             }
             
             # Add the message to log history
-            result@log_history <- dplyr::bind_rows(x@log_history, dplyr::bind_rows(msgs))
+            result@log_history <- dplyr::bind_rows(x@log_history, dplyr::bind_rows(msg))
             return(result)
 }
 
@@ -114,8 +135,6 @@ setMethod("[", signature = signature(x = "SingleCellExperimentLogged"), .logged_
 #'   
 #'   # Add new column
 #'   colData(se_logged)$new_column <- rep("test", ncol(se_logged))
-#'   
-#'   # Print to see the log
 #'   se_logged
 #' }
 setMethod("$<-", signature = signature(x = "SummarizedExperimentLogged"), .logged_dollar_set)
@@ -148,7 +167,7 @@ setMethod("$<-", signature = signature(x = "SingleCellExperimentLogged"), .logge
 
   # Generate log messages
   timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-  log_messages <- character(0)
+  log_messages <- list()
 
   # Log added columns (all in one message, capitalized, plural, colon)
   if (length(added_cols) > 0) {
@@ -157,7 +176,7 @@ setMethod("$<-", signature = signature(x = "SingleCellExperimentLogged"), .logge
       "added ", length(added_cols), " new column(s): ",
       paste(added_cols, collapse = ", ")
     )) 
-    log_messages <- c(log_messages, msg)
+    log_messages <- c(log_messages, list(msg))
   }
 
   # Log modified columns (one per column)
@@ -166,7 +185,7 @@ setMethod("$<-", signature = signature(x = "SingleCellExperimentLogged"), .logge
       msg <- list(Time = timestamp, Operation = "colData<-", Message = paste0(
         "modified column '", col, "'"
       ))
-      log_messages <- c(log_messages, msg)
+      log_messages <- c(log_messages, list(msg))
     }
   }
 
@@ -180,12 +199,6 @@ setMethod("$<-", signature = signature(x = "SingleCellExperimentLogged"), .logge
 
   return(x)
 }
-
-
-
-#####################################
-####################################
-####################################
 
 # Helper for rowData<- logging and update
 .rowData_logged_update <- function(x, value) {
@@ -211,7 +224,7 @@ setMethod("$<-", signature = signature(x = "SingleCellExperimentLogged"), .logge
 
   # Generate log messages
   timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-  log_messages <- character(0)
+  log_messages <- list()
 
   # Log added columns (all in one message, capitalized, plural, colon)
   if (length(added_cols) > 0) {
@@ -220,7 +233,7 @@ setMethod("$<-", signature = signature(x = "SingleCellExperimentLogged"), .logge
       "added ", length(added_cols), " new column(s): ",
       paste(added_cols, collapse = ", ")
     )) 
-    log_messages <- c(log_messages, msg)
+    log_messages <- c(log_messages, list(msg))
   }
 
   # Log modified columns (one per column)
@@ -229,7 +242,7 @@ setMethod("$<-", signature = signature(x = "SingleCellExperimentLogged"), .logge
       msg <- list(Time = timestamp, Operation = "rowData<-", Message = paste0(
         "modified column '", col, "'"
       ))
-      log_messages <- c(log_messages, msg)
+      log_messages <- c(log_messages, list(msg))
     }
   }
 
@@ -250,6 +263,15 @@ setMethod("$<-", signature = signature(x = "SingleCellExperimentLogged"), .logge
 #' Assign column to rowData using `rowData<-` for ExperimentLogged
 #' @rdname rowData
 #' @export
+#' @examples
+#' # Create a logged SingleCellExperiment
+#' if (requireNamespace("tidySingleCellExperiment", quietly = TRUE)) {
+#'   data(pbmc_small, package="tidySingleCellExperiment")
+#'   sce_logged <- log_start(pbmc_small)
+#'   
+#'   rowData(sce_logged)$vst.variable <-  ifelse(rowData(sce_logged)$vst.variable,1,0 )
+#'   sce_logged
+#' }
 setMethod("rowData<-", signature = signature(x = "ExperimentLogged", value = "DataFrame"),
   function(x, value) {
     .rowData_logged_update(x, value)
@@ -261,10 +283,6 @@ setMethod("rowData<-", signature = signature(x = "ExperimentLogged", value = "DF
   function(x, value) {
     .rowData_logged_update(x, value)
   })
-
-######################################
-#######################################
-#######################################
 
 # Helper for assays<- logging and update
 .assays_logged_update <- function(x, value, result) {
@@ -289,7 +307,7 @@ setMethod("rowData<-", signature = signature(x = "ExperimentLogged", value = "DF
 
   # Generate log messages
   timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-  log_messages <- character(0)
+  log_messages <- list()
 
   # Log added assays (all in one message, capitalized, plural, colon)
   if (length(added_assays) > 0) {
@@ -298,7 +316,7 @@ setMethod("rowData<-", signature = signature(x = "ExperimentLogged", value = "DF
       "added ", length(added_assays), " new assay(s): ",
       paste(added_assays, collapse = ", ")
     ))
-    log_messages <- c(log_messages, msg)
+    log_messages <- c(log_messages, list(msg))
   }
 
   # Log modified assays (one per assay)
@@ -307,7 +325,7 @@ setMethod("rowData<-", signature = signature(x = "ExperimentLogged", value = "DF
       msg <- list(Time = timestamp, Operation = "assays<-", Message = paste0(
         "modified assay '", assay, "'"
       ))
-      log_messages <- c(log_messages, msg)
+      log_messages <- c(log_messages, list(msg))
     }
   }
 
@@ -324,6 +342,15 @@ setMethod("rowData<-", signature = signature(x = "ExperimentLogged", value = "DF
 #' Assign column to colData using `colData<-` for ExperimentLogged
 #' @rdname colData
 #' @export
+#' @examples
+#' # Create a logged SingleCellExperiment
+#' if (requireNamespace("tidySingleCellExperiment", quietly = TRUE)) {
+#'   data(pbmc_small, package="tidySingleCellExperiment")
+#'   sce_logged <- log_start(pbmc_small)
+#'   
+#'   colData(sce_logged)$num.idents <- as.numeric(colData(sce_logged)$letter.idents)
+#'   sce_logged
+#' }
 setMethod("colData<-", signature = signature(x = "ExperimentLogged", value = "DataFrame"),
   function(x, value) {
     .colData_logged_update(x, value)
@@ -339,6 +366,15 @@ setMethod("colData<-", signature = signature(x = "ExperimentLogged", value = "DF
 #' Assign List to assays using `assays<-` for ExperimentLogged
 #' @rdname assays
 #' @export
+#' @examples
+#' # Create a logged SingleCellExperiment
+#' if (requireNamespace("tidySingleCellExperiment", quietly = TRUE)) {
+#'   data(pbmc_small, package="tidySingleCellExperiment")
+#'   sce_logged <- log_start(pbmc_small)
+#'   
+#'   assays(sce_logged)$log2.counts <- log2(assays(sce_logged)$counts)
+#'   sce_logged
+#' }
 setMethod("assays<-", signature = signature(x = "SummarizedExperimentLogged", value = "SimpleList"),
   function(x, withDimnames = TRUE, ..., value) {
     result <- callNextMethod(x, withDimnames = withDimnames, ..., value = value)
@@ -353,14 +389,7 @@ setMethod("assays<-", signature = signature(x = "SingleCellExperimentLogged", va
     .assays_logged_update(x, value, result)
   })
 
-######################################
-#######################################
-#######################################
-
 # Helper for reducedDim<- logging and update. `type` may be a character name
-# or a numeric index (SingleCellExperiment also has a "missing" method, but
-# that one just resolves a name/index internally and calls back into
-# `reducedDim<-`, so it re-dispatches here rather than needing its own method).
 .reducedDim_logged_update <- function(x, type, value, result) {
   # Get original reduced dimension names
   original_dims <- reducedDimNames(x)
@@ -401,6 +430,15 @@ setMethod("assays<-", signature = signature(x = "SingleCellExperimentLogged", va
 #' @rdname reducedDim
 #' @importFrom SingleCellExperiment reducedDim reducedDim<- reducedDimNames
 #' @export
+#' @examples
+#' # Create a logged SingleCellExperiment
+#' if (requireNamespace("tidySingleCellExperiment", quietly = TRUE)) {
+#'   data(pbmc_small, package="tidySingleCellExperiment")
+#'   sce_logged <- log_start(pbmc_small)
+#'   
+#'   reducedDim(sce_logged) <- reducedDim(sce_logged)[,1:2]
+#'   sce_logged
+#' }
 setMethod("reducedDim<-", signature = signature(x = "SingleCellExperimentLogged", type = "character"),
   function(x, type, withDimnames = TRUE, ..., value) {
     result <- callNextMethod(x, type, withDimnames = withDimnames, ..., value = value)
@@ -414,10 +452,6 @@ setMethod("reducedDim<-", signature = signature(x = "SingleCellExperimentLogged"
     result <- callNextMethod(x, type, withDimnames = withDimnames, ..., value = value)
     .reducedDim_logged_update(x, type, value, result)
   })
-
-######################################
-#######################################
-#######################################
 
 # Helper for reducedDims<- logging and update
 .reducedDims_logged_update <- function(x, value, result) {
@@ -442,7 +476,7 @@ setMethod("reducedDim<-", signature = signature(x = "SingleCellExperimentLogged"
 
   # Generate log messages
   timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-  log_messages <- character(0)
+  log_messages <- list()
 
   # Log added reduced dimensions (all in one message, capitalized, plural, colon)
   if (length(added_dims) > 0) {
@@ -451,7 +485,7 @@ setMethod("reducedDim<-", signature = signature(x = "SingleCellExperimentLogged"
       "added ", length(added_dims), " new reduced dimension(s): ",
       paste(added_dims, collapse = ", ")
     ))
-    log_messages <- c(log_messages, msg)
+    log_messages <- c(log_messages, list(msg))
   }
 
   # Log modified reduced dimensions (one per dimension)
@@ -460,7 +494,7 @@ setMethod("reducedDim<-", signature = signature(x = "SingleCellExperimentLogged"
       msg <- list(Time = timestamp, Operation = "reducedDims<-", Message = paste0(
         "modified reduced dimension '", rd, "'"
       ))
-      log_messages <- c(log_messages, msg)
+      log_messages <- c(log_messages, list(msg))
     }
   }
 
@@ -478,6 +512,15 @@ setMethod("reducedDim<-", signature = signature(x = "SingleCellExperimentLogged"
 #' @rdname reducedDims
 #' @importFrom SingleCellExperiment reducedDims reducedDims<- reducedDimNames
 #' @export
+#' @examples
+#' # Create a logged SingleCellExperiment
+#' if (requireNamespace("tidySingleCellExperiment", quietly = TRUE)) {
+#'   data(pbmc_small, package="tidySingleCellExperiment")
+#'   sce_logged <- log_start(pbmc_small)
+#'   
+#'   reducedDims(sce_logged)$TSNE <- abs(reducedDims(sce_logged)$TSNE)
+#'   sce_logged
+#' }
 setMethod("reducedDims<-", signature = signature(x = "SingleCellExperimentLogged"),
   function(x, withDimnames = TRUE, ..., value) {
     result <- callNextMethod(x, withDimnames = withDimnames, ..., value = value)

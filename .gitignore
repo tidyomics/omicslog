@@ -36,3 +36,9 @@ rsconnect/
 omicslog.Rproj
 /doc/
 /Meta/
+# macOS
+.DS_Store
+# Editor settings
+.vscode/
+# Built vignettes installed into inst/doc
+inst/doc

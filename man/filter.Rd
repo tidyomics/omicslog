@@ -3,17 +3,25 @@
 \name{filter.SummarizedExperimentLogged}
 \alias{filter.SummarizedExperimentLogged}
 \alias{filter.SingleCellExperimentLogged}
-\title{Filter rows and columns of a ExperimentLogged object}
+\title{Filter rows and columns of An ExperimentLogged object}
 \usage{
 \method{filter}{SummarizedExperimentLogged}(.data, ...)
 
 \method{filter}{SingleCellExperimentLogged}(.data, ...)
 }
 \arguments{
-\item{.data}{A ExperimentLogged object}
+\item{.data}{An ExperimentLogged object}
 
 \item{...}{Logical expressions used for filtering}
 }
 \description{
-Filter rows and columns of a ExperimentLogged object
+Filter rows and columns of An ExperimentLogged object
+}
+\examples{
+if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
+  se <- tidySummarizedExperiment::pasilla
+  se_logged <- log_start(se)
+  result <- se_logged |>
+    filter(condition == "treated")
+}
 }

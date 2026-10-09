@@ -59,7 +59,7 @@
 #' when the object is printed.
 #'
 #' @param se A SummarizedExperiment or derived object
-#' @return A ExperimentLogged object with tracking capabilities
+#' @return An ExperimentLogged object with tracking capabilities
 #' @importFrom tibble tibble
 #' @export
 #' @examples
@@ -68,6 +68,7 @@
 #'   se_logged <- log_start(se)
 #'   result <- se_logged |>
 #'     filter(condition == "treated")
+#'   result
 #' }
 log_start <- function(se) {
   empty <- tibble(Time = character(), Operation = character(), Message = character())
@@ -100,7 +101,7 @@ log_start <- function(se) {
 # show uses callNextMethod(), which has no parent to call from a class union,
 # so it is registered once per concrete class.
 #' @rdname log_start
-#' @param object A ExperimentLogged object
+#' @param object An ExperimentLogged object
 #' @export
 setMethod("show", "SummarizedExperimentLogged", .logged_show)
 
@@ -108,13 +109,21 @@ setMethod("show", "SummarizedExperimentLogged", .logged_show)
 #' @export
 setMethod("show", "SingleCellExperimentLogged", .logged_show)
 
-#' Filter rows and columns of a ExperimentLogged object
+#' Filter rows and columns of An ExperimentLogged object
 #'
 #' @rdname filter
-#' @param .data A ExperimentLogged object
+#' @param .data An ExperimentLogged object
 #' @param ... Logical expressions used for filtering
 #' @importFrom dplyr filter
 #' @export
+#' @examples
+#' if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
+#'   se <- tidySummarizedExperiment::pasilla
+#'   se_logged <- log_start(se)
+#'   result <- se_logged |>
+#'     filter(condition == "treated")
+#'   result
+#' }
 filter.SummarizedExperimentLogged <- function(.data, ...) {
           
             # Get dimensions before filtering
@@ -142,14 +151,22 @@ filter.SummarizedExperimentLogged <- function(.data, ...) {
 #' @export
 filter.SingleCellExperimentLogged <- filter.SummarizedExperimentLogged
 
-#' Modify columns of a ExperimentLogged object
+#' Modify columns of An ExperimentLogged object
 #'
 #' @rdname mutate
-#' @param .data A ExperimentLogged object
+#' @param .data An ExperimentLogged object
 #' @param ... Name-value pairs of expressions used to modify columns
 #' @importFrom dplyr mutate
 #' @importFrom rlang enquos
 #' @export
+#' @examples
+#' if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
+#'   se <- tidySummarizedExperiment::pasilla
+#'   se_logged <- log_start(se)
+#'   result <- se_logged |>
+#'     mutate(type = sub("_end","",colData(se)$type))
+#'   result
+#' }
 mutate.SummarizedExperimentLogged <- function(.data, ...) {
             # Capture the pre-mutation state
             pre_cols_data <- colnames(colData(.data))
@@ -200,13 +217,21 @@ mutate.SummarizedExperimentLogged <- function(.data, ...) {
 #' @export
 mutate.SingleCellExperimentLogged <- mutate.SummarizedExperimentLogged
 
-#' Filter columns of a ExperimentLogged object
+#' Filter columns of An ExperimentLogged object
 #' 
 #' @rdname select
-#' @param .data A ExperimentLogged object
+#' @param .data An ExperimentLogged object
 #' @param ... Name of columns to select or deselect
 #' @importFrom dplyr select
 #' @export
+#' @examples
+#' if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
+#'   se <- tidySummarizedExperiment::pasilla
+#'   se_logged <- log_start(se)
+#'   result <- se_logged |>
+#'     select(condition)
+#'   result
+#' }
 select.SummarizedExperimentLogged <- function(.data, ...) {
             # Get dimensions before filtering
             pre_cols_data <- colnames(colData(.data))
@@ -242,10 +267,10 @@ select.SummarizedExperimentLogged <- function(.data, ...) {
 #' @export
 select.SingleCellExperimentLogged <- select.SummarizedExperimentLogged
 
-#' Extract values from a column into multiple columns in a ExperimentLogged object
+#' Extract values from a column into multiple columns in An ExperimentLogged object
 #'
 #' @rdname extract
-#' @param data A ExperimentLogged object
+#' @param data An ExperimentLogged object
 #' @param col Column to extract from
 #' @param into Names of new variables to create
 #' @param regex A regular expression to extract values
@@ -255,6 +280,15 @@ select.SingleCellExperimentLogged <- select.SummarizedExperimentLogged
 #' @importFrom tidyr extract
 #' @importFrom rlang enquo as_name
 #' @export
+#' @examples
+#' if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
+#'   se <- tidySummarizedExperiment::pasilla
+#'   se_logged <- log_start(se)
+#'   result <- se_logged |>
+#'     mutate(type = sub("_end","",colData(se)$type)) |>
+#'     extract(type, into = "exp")
+#'   result
+#' }
 extract.SummarizedExperimentLogged <- function(data, col, into, regex = "([[:alnum:]]+)",
                    remove = TRUE, convert = FALSE, ...) {
             
@@ -296,16 +330,24 @@ extract.SummarizedExperimentLogged <- function(data, col, into, regex = "([[:aln
 extract.SingleCellExperimentLogged <- extract.SummarizedExperimentLogged
 
 
-#' Slice rows from a ExperimentLogged object
+#' Slice rows from An ExperimentLogged object
 #' 
 #' @rdname slice
-#' @param .data A ExperimentLogged object
+#' @param .data An ExperimentLogged object
 #' @param ... Row selection expressions
 #' @param .preserve If TRUE, preserves the grouping structure of the data
 #' @importFrom dplyr slice
 #' @importFrom rlang enquos
 #' @importFrom tibble as_tibble
 #' @export
+#' @examples
+#' if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
+#'   se <- tidySummarizedExperiment::pasilla
+#'   se_logged <- log_start(se)
+#'   result <- se_logged |>
+#'     slice(1)
+#'   result
+#' }
 slice.SummarizedExperimentLogged <- function(.data, ..., .preserve = FALSE) {
             
             # Capture pre-state
@@ -324,7 +366,7 @@ slice.SummarizedExperimentLogged <- function(.data, ..., .preserve = FALSE) {
             
             # Generate log message if rows were removed
             if (pre_nrow != post_nrow) {
-              removed <- setdiff(pre_rownames, post_rownames)
+              #removed <- setdiff(pre_rownames, post_rownames)
               n_removed <- pre_nrow - post_nrow
               msg <- .format_log_message(operation="slice",
                 message=sprintf("kept %d/%d rows (%.1f%%)%s",

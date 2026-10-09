@@ -3,7 +3,7 @@
 \name{extract.SummarizedExperimentLogged}
 \alias{extract.SummarizedExperimentLogged}
 \alias{extract.SingleCellExperimentLogged}
-\title{Extract values from a column into multiple columns in a ExperimentLogged object}
+\title{Extract values from a column into multiple columns in An ExperimentLogged object}
 \usage{
 \method{extract}{SummarizedExperimentLogged}(
   data,
@@ -26,7 +26,7 @@
 )
 }
 \arguments{
-\item{data}{A ExperimentLogged object}
+\item{data}{An ExperimentLogged object}
 
 \item{col}{Column to extract from}
 
@@ -41,5 +41,14 @@
 \item{...}{Additional arguments passed to tidyr::extract}
 }
 \description{
-Extract values from a column into multiple columns in a ExperimentLogged object
+Extract values from a column into multiple columns in An ExperimentLogged object
+}
+\examples{
+if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
+  se <- tidySummarizedExperiment::pasilla
+  se_logged <- log_start(se)
+  result <- se_logged |>
+    mutate(type = sub("_end","",colData(se)$type)) |>
+    extract(type, into = "exp")
+}
 }

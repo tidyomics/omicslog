@@ -3,17 +3,25 @@
 \name{select.SummarizedExperimentLogged}
 \alias{select.SummarizedExperimentLogged}
 \alias{select.SingleCellExperimentLogged}
-\title{Filter columns of a ExperimentLogged object}
+\title{Filter columns of An ExperimentLogged object}
 \usage{
 \method{select}{SummarizedExperimentLogged}(.data, ...)
 
 \method{select}{SingleCellExperimentLogged}(.data, ...)
 }
 \arguments{
-\item{.data}{A ExperimentLogged object}
+\item{.data}{An ExperimentLogged object}
 
 \item{...}{Name of columns to select or deselect}
 }
 \description{
-Filter columns of a ExperimentLogged object
+Filter columns of An ExperimentLogged object
+}
+\examples{
+if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
+  se <- tidySummarizedExperiment::pasilla
+  se_logged <- log_start(se)
+  result <- se_logged |>
+    select(condition)
+}
 }
