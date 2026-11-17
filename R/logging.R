@@ -59,12 +59,15 @@
 #' when the object is printed.
 #'
 #' @param se A SummarizedExperiment or derived object
-#' @return An ExperimentLogged object with tracking capabilities
+#' @return `log_start()` returns an ExperimentLogged object
+#'   (SummarizedExperimentLogged or SingleCellExperimentLogged) with an empty
+#'   log. `show()` prints the object followed by its operation log and
+#'   returns `NULL` invisibly.
 #' @importFrom tibble tibble
 #' @export
 #' @examples
 #' if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
-#'   se <- tidySummarizedExperiment::pasilla
+#' se <- tidySummarizedExperiment::pasilla
 #'   se_logged <- log_start(se)
 #'   result <- se_logged |>
 #'     filter(condition == "treated")
@@ -86,7 +89,7 @@ log_start <- function(se) {
   # Then display the log history
   if (length(object@log_history) > 0) {
     # Create a formatted string for the log
-    n_logs <- object@log_history |> head()
+    n_logs <- object@log_history |> utils::head()
     log_lines <- paste0(
       "[", n_logs$Time, "] ",
       n_logs$Operation, ": ",
@@ -111,14 +114,21 @@ setMethod("show", "SingleCellExperimentLogged", .logged_show)
 
 #' Filter rows and columns of An ExperimentLogged object
 #'
+#' `filter()` is re-exported from \pkg{dplyr}, so it is available after
+#' `library(omicslog)`. These methods log the operation on
+#' ExperimentLogged objects; see [dplyr::filter()] for the generic.
+#'
 #' @rdname filter
+#' @aliases filter
 #' @param .data An ExperimentLogged object
 #' @param ... Logical expressions used for filtering
+#' @return An ExperimentLogged object with the features and observations
+#'   that match the conditions, with the number removed added to its log.
 #' @importFrom dplyr filter
 #' @export
 #' @examples
 #' if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
-#'   se <- tidySummarizedExperiment::pasilla
+#' se <- tidySummarizedExperiment::pasilla
 #'   se_logged <- log_start(se)
 #'   result <- se_logged |>
 #'     filter(condition == "treated")
@@ -153,9 +163,16 @@ filter.SingleCellExperimentLogged <- filter.SummarizedExperimentLogged
 
 #' Modify columns of An ExperimentLogged object
 #'
+#' `mutate()` is re-exported from \pkg{dplyr}, so it is available after
+#' `library(omicslog)`. These methods log the operation on
+#' ExperimentLogged objects; see [dplyr::mutate()] for the generic.
+#'
 #' @rdname mutate
+#' @aliases mutate
 #' @param .data An ExperimentLogged object
 #' @param ... Name-value pairs of expressions used to modify columns
+#' @return An ExperimentLogged object with the new or modified columns, with
+#'   the change added to its log.
 #' @importFrom dplyr mutate
 #' @importFrom rlang enquos
 #' @export
@@ -218,18 +235,29 @@ mutate.SummarizedExperimentLogged <- function(.data, ...) {
 mutate.SingleCellExperimentLogged <- mutate.SummarizedExperimentLogged
 
 #' Filter columns of An ExperimentLogged object
-#' 
+#'
+#' `select()` is re-exported from \pkg{dplyr}, so it is available after
+#' `library(omicslog)`. These methods log the operation on
+#' ExperimentLogged objects; see [dplyr::select()] for the generic.
+#'
 #' @rdname select
+#' @aliases select
 #' @param .data An ExperimentLogged object
 #' @param ... Name of columns to select or deselect
+#' @return An ExperimentLogged object with the selected `colData` columns,
+#'   with the number of removed columns added to its log. If the selection
+#'   drops the key columns (`.feature`, `.sample`), tidySummarizedExperiment
+#'   returns a tibble, which is returned unchanged and without a log.
 #' @importFrom dplyr select
 #' @export
 #' @examples
 #' if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
 #'   se <- tidySummarizedExperiment::pasilla
 #'   se_logged <- log_start(se)
+#'
+#'   # Drop a colData column: still a logged object
 #'   result <- se_logged |>
-#'     select(condition)
+#'     select(!type)
 #'   result
 #' }
 select.SummarizedExperimentLogged <- function(.data, ...) {
@@ -239,6 +267,13 @@ select.SummarizedExperimentLogged <- function(.data, ...) {
             # Apply the filter
             se_plain  <- .unlog(.data)
             selected  <- dplyr::select(se_plain, ...)
+
+            # If the selection drops the key columns (.feature/.sample),
+            # tidySummarizedExperiment returns a tibble instead of an
+            # experiment object; there is nothing to log, so return it as is.
+            if (!is(selected, "SummarizedExperiment")) {
+              return(selected)
+            }
 
             # Re-wrap as ExperimentLogged, preserving log_history explicitly.
             result <- .relog(selected, .data)
@@ -269,7 +304,12 @@ select.SingleCellExperimentLogged <- select.SummarizedExperimentLogged
 
 #' Extract values from a column into multiple columns in An ExperimentLogged object
 #'
+#' `extract()` is re-exported from \pkg{tidyr}, so it is available after
+#' `library(omicslog)`. These methods log the operation on
+#' ExperimentLogged objects; see [tidyr::extract()] for the generic.
+#'
 #' @rdname extract
+#' @aliases extract
 #' @param data An ExperimentLogged object
 #' @param col Column to extract from
 #' @param into Names of new variables to create
@@ -277,6 +317,8 @@ select.SingleCellExperimentLogged <- select.SummarizedExperimentLogged
 #' @param remove If TRUE, remove input column from output
 #' @param convert If TRUE, runs type.convert() on each new column
 #' @param ... Additional arguments passed to tidyr::extract
+#' @return An ExperimentLogged object with the extracted `colData` columns,
+#'   with the extraction added to its log.
 #' @importFrom tidyr extract
 #' @importFrom rlang enquo as_name
 #' @export
@@ -331,11 +373,18 @@ extract.SingleCellExperimentLogged <- extract.SummarizedExperimentLogged
 
 
 #' Slice rows from An ExperimentLogged object
-#' 
+#'
+#' `slice()` is re-exported from \pkg{dplyr}, so it is available after
+#' `library(omicslog)`. These methods log the operation on
+#' ExperimentLogged objects; see [dplyr::slice()] for the generic.
+#'
 #' @rdname slice
+#' @aliases slice
 #' @param .data An ExperimentLogged object
 #' @param ... Row selection expressions
 #' @param .preserve If TRUE, preserves the grouping structure of the data
+#' @return An ExperimentLogged object with the selected rows, with the number
+#'   of kept and removed rows added to its log.
 #' @importFrom dplyr slice
 #' @importFrom rlang enquos
 #' @importFrom tibble as_tibble

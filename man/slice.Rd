@@ -2,6 +2,7 @@
 % Please edit documentation in R/logging.R
 \name{slice.SummarizedExperimentLogged}
 \alias{slice.SummarizedExperimentLogged}
+\alias{slice}
 \alias{slice.SingleCellExperimentLogged}
 \title{Slice rows from An ExperimentLogged object}
 \usage{
@@ -16,8 +17,14 @@
 
 \item{.preserve}{If TRUE, preserves the grouping structure of the data}
 }
+\value{
+An ExperimentLogged object with the selected rows, with the number
+of kept and removed rows added to its log.
+}
 \description{
-Slice rows from An ExperimentLogged object
+\code{slice()} is re-exported from \pkg{dplyr}, so it is available after
+\code{library(omicslog)}. These methods log the operation on
+ExperimentLogged objects; see \code{\link[dplyr:slice]{dplyr::slice()}} for the generic.
 }
 \examples{
 if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
@@ -25,5 +32,6 @@ if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
   se_logged <- log_start(se)
   result <- se_logged |>
     slice(1)
+  result
 }
 }

@@ -2,6 +2,7 @@
 % Please edit documentation in R/logging.R
 \name{extract.SummarizedExperimentLogged}
 \alias{extract.SummarizedExperimentLogged}
+\alias{extract}
 \alias{extract.SingleCellExperimentLogged}
 \title{Extract values from a column into multiple columns in An ExperimentLogged object}
 \usage{
@@ -40,8 +41,14 @@
 
 \item{...}{Additional arguments passed to tidyr::extract}
 }
+\value{
+An ExperimentLogged object with the extracted \code{colData} columns,
+with the extraction added to its log.
+}
 \description{
-Extract values from a column into multiple columns in An ExperimentLogged object
+\code{extract()} is re-exported from \pkg{tidyr}, so it is available after
+\code{library(omicslog)}. These methods log the operation on
+ExperimentLogged objects; see \code{\link[tidyr:extract]{tidyr::extract()}} for the generic.
 }
 \examples{
 if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
@@ -50,5 +57,6 @@ if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
   result <- se_logged |>
     mutate(type = sub("_end","",colData(se)$type)) |>
     extract(type, into = "exp")
+  result
 }
 }

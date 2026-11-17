@@ -9,6 +9,27 @@
 
 \S4method{assays}{SingleCellExperimentLogged,SimpleList}(x, withDimnames = TRUE, ...) <- value
 }
+\arguments{
+\item{x}{An ExperimentLogged object}
+
+\item{withDimnames, ...}{Passed to the \verb{assays<-} method of the parent class}
+
+\item{value}{A SimpleList of assays}
+}
+\value{
+The modified ExperimentLogged object, with added and modified
+assays added to its log.
+}
 \description{
 Assign List to assays using \verb{assays<-} for ExperimentLogged
+}
+\examples{
+# Create a logged SingleCellExperiment
+if (requireNamespace("tidySingleCellExperiment", quietly = TRUE)) {
+  data(pbmc_small, package="tidySingleCellExperiment")
+  sce_logged <- log_start(pbmc_small)
+  
+  assays(sce_logged)$log2.counts <- log2(assays(sce_logged)$counts)
+  sce_logged
+}
 }

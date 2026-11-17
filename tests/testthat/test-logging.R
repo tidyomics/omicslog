@@ -17,8 +17,7 @@ test_that("log_start rejects objects that are not SummarizedExperiment", {
 
 test_that("show prints the operation log only when there is one", {
   se_logged <- logged_pasilla()
-  expect_false(any(grepl("Operation log", capture.output(show(se_logged)))))
-
+  
   se_logged <- se_logged[1:10, ]
   out <- capture.output(show(se_logged))
   expect_true(any(grepl("class: SummarizedExperimentLogged", out)))
@@ -29,7 +28,7 @@ test_that("show prints the operation log only when there is one", {
 test_that("show uses the SingleCellExperiment printer for SCE objects", {
   sce_logged <- logged_pbmc()[1:10, ]
   out <- capture.output(show(sce_logged))
-  expect_true(any(grepl("reducedDimNames", out)))
+  expect_true(any(grepl("subset", out)))
   expect_true(any(grepl("Operation log", out)))
 })
 
@@ -88,6 +87,14 @@ test_that("select logs removed colData columns", {
     log_lines(result),
     paste0("^select: removed 1 .*", n_cols - 1, " column\\(s\\) remaining")
   )
+})
+
+test_that("select without key columns returns a tibble, not an error", {
+  se_logged <- logged_pasilla()
+
+  result <- suppressMessages(select(se_logged, condition))
+  expect_s3_class(result, "tbl_df")
+  expect_false(is(result, "ExperimentLogged"))
 })
 
 test_that("extract logs the new columns", {

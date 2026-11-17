@@ -12,6 +12,14 @@ log when the object is printed.
 \section{Slots}{
 
 \describe{
-\item{\code{log_history}}{A tibble storing the history of operations}
+\item{\code{log_history}}{A data.frame storing the history of operations}
 }}
 
+\examples{
+counts <- matrix(rpois(40, 5), nrow = 5,
+                 dimnames = list(paste0("gene", 1:5), paste0("cell", 1:8)))
+sce <- SingleCellExperiment(assays = list(counts = counts))
+sce_logged <- log_start(sce)
+is(sce_logged, "SingleCellExperimentLogged")
+sce_logged[, 1:4]
+}

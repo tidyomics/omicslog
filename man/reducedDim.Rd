@@ -9,6 +9,30 @@
 
 \S4method{reducedDim}{SingleCellExperimentLogged,numeric}(x, type, withDimnames = TRUE, ...) <- value
 }
+\arguments{
+\item{x}{A SingleCellExperimentLogged object}
+
+\item{type}{Name or index of the reduced dimension to set}
+
+\item{withDimnames, ...}{Passed to the \verb{reducedDim<-} method of
+SingleCellExperiment}
+
+\item{value}{A matrix with one row per cell}
+}
+\value{
+The modified SingleCellExperimentLogged object, with the change
+added to its log.
+}
 \description{
 Assign a matrix to a named reduced dimension using \verb{reducedDim<-} for SingleCellExperimentLogged
+}
+\examples{
+# Create a logged SingleCellExperiment
+if (requireNamespace("tidySingleCellExperiment", quietly = TRUE)) {
+  data(pbmc_small, package="tidySingleCellExperiment")
+  sce_logged <- log_start(pbmc_small)
+  
+  reducedDim(sce_logged) <- reducedDim(sce_logged)[,1:2]
+  sce_logged
+}
 }

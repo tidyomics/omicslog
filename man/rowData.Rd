@@ -9,6 +9,25 @@
 
 \S4method{rowData}{ExperimentLogged,DFrame}(x) <- value
 }
+\arguments{
+\item{x}{An ExperimentLogged object}
+
+\item{value}{A DataFrame with the new row data}
+}
+\value{
+The modified ExperimentLogged object, with added and modified
+\code{rowData} columns added to its log.
+}
 \description{
 Assign column to rowData using \verb{rowData<-} for ExperimentLogged
+}
+\examples{
+# Create a logged SingleCellExperiment
+if (requireNamespace("tidySingleCellExperiment", quietly = TRUE)) {
+  data(pbmc_small, package="tidySingleCellExperiment")
+  sce_logged <- log_start(pbmc_small)
+  
+  rowData(sce_logged)$vst.variable <-  ifelse(rowData(sce_logged)$vst.variable,1,0 )
+  sce_logged
+}
 }

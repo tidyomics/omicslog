@@ -1,4 +1,5 @@
-EXPERIMENTAL: Getting Started with omicslog
+# Getting Started with omicslog
+
 ================
 
 # Introduction

@@ -9,6 +9,25 @@
 
 \S4method{colData}{ExperimentLogged,DFrame}(x) <- value
 }
+\arguments{
+\item{x}{An ExperimentLogged object}
+
+\item{value}{A DataFrame with the new column data}
+}
+\value{
+The modified ExperimentLogged object, with added and modified
+\code{colData} columns added to its log.
+}
 \description{
 Assign column to colData using \verb{colData<-} for ExperimentLogged
+}
+\examples{
+# Create a logged SingleCellExperiment
+if (requireNamespace("tidySingleCellExperiment", quietly = TRUE)) {
+  data(pbmc_small, package="tidySingleCellExperiment")
+  sce_logged <- log_start(pbmc_small)
+  
+  colData(sce_logged)$num.idents <- as.numeric(colData(sce_logged)$letter.idents)
+  sce_logged
+}
 }

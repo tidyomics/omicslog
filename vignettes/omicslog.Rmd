@@ -1,5 +1,8 @@
 ---
 title: "Getting Started with omicslog"
+author: "Juan Henao"
+date: "`r Sys.Date()`"
+package: omicslog
 output:
   BiocStyle::html_document:
     toc: true
@@ -10,7 +13,8 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r, include = FALSE}
+```{r set-up, include = FALSE}
+
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -23,7 +27,8 @@ knitr::opts_chunk$set(
 
 You can install the `omicslog` package from Bioconductor using the following commands:
 
-```{r, eval=FALSE}
+```{r installation, eval=FALSE}
+
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 BiocManager::install("omicslog")
@@ -31,21 +36,24 @@ BiocManager::install("omicslog")
 
 # Introduction
 
-```{r setup, message=FALSE}
+The `omicslog` package provides logging capabilities for `SingleCellExperiment` and `SummarizedExperiment` objects. 
+This is particularly useful for tracking transformations in complex analysis workflows.
+
+```{r loading-libraries, message=FALSE}
+
 library(SummarizedExperiment)
 library(tidySummarizedExperiment)
 library(omicslog)
 data(airway, package="airway")
 ```
 
-The `omicslog` package provides logging capabilities for `SingleCellExperiment` and `SummarizedExperiment` objects. 
-This is particularly useful for tracking transformations in complex analysis workflows.
 
 ## Pipeline Workflow
 
-Alternatively, you can chain these operations into a single pipeline:
+Omicslog logs chain operations in a pipeline workflow. Here's an example of a complete workflow using the `airway` dataset:
 
-```{r, message=TRUE, warning=TRUE}
+```{r tidy-operaitons, message=TRUE, warning=TRUE}
+
 # Complete workflow in a single pipeline
 result <- 
   airway |>
@@ -63,7 +71,8 @@ result <-
 result
 ```
 
-```{r}
+```{r visualizing-tidy-log, message=TRUE, warning=TRUE}
+
 # View the table with the complete log history
 print(result@log_history,width=Inf)
 ```
@@ -72,8 +81,9 @@ print(result@log_history,width=Inf)
 
 Here's the same workflow implemented using base R operations:
 
-```{r, message=TRUE, warning=TRUE}
-# revert printing to Bioconductor style
+```{r base-operations, message=TRUE, warning=TRUE}
+
+# switch printing to Bioconductor style
 options(restore_SummarizedExperiment_show = TRUE)
 
 # Start with logging
@@ -95,13 +105,15 @@ result_base <- result_base[rownames(result_base) == "ENSG00000000003", ]
 result_base
 ```
 
-```{r}
+```{r visualizing-base-log, message=TRUE, warning=TRUE}
+
 # View the table with the complete log history
 print(result_base@log_history,width=Inf)
 ```
 
-```{r echo=FALSE}
-# revert printing to Bioconductor style
+```{r restoring-printing, echo=FALSE}
+
+# switch printing to Bioconductor style
 options(restore_SummarizedExperiment_show = FALSE)
 ```
 
@@ -109,7 +121,8 @@ options(restore_SummarizedExperiment_show = FALSE)
 
 `omicslog` also supports `SingleCellExperiment` objects. Here's an example using the `pbmc_small` dataset:
 
-```{r, message=TRUE, warning=TRUE}
+```{r single-cell-example, message=TRUE, warning=TRUE}
+
 data(pbmc_small, package="tidySingleCellExperiment")
 pbmc_logged <- log_start(pbmc_small)
 pbmc_logged <- pbmc_logged[, colData(pbmc_logged)$groups == "g1"]
@@ -119,6 +132,7 @@ pbmc_logged
 
 # Session Info
 
-```{r}
+```{r session-info, echo=FALSE}
+
 sessionInfo()
 ``` 
