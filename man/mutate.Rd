@@ -2,6 +2,7 @@
 % Please edit documentation in R/logging.R
 \name{mutate.SummarizedExperimentLogged}
 \alias{mutate.SummarizedExperimentLogged}
+\alias{mutate}
 \alias{mutate.SingleCellExperimentLogged}
 \title{Modify columns of An ExperimentLogged object}
 \usage{
@@ -14,8 +15,14 @@
 
 \item{...}{Name-value pairs of expressions used to modify columns}
 }
+\value{
+An ExperimentLogged object with the new or modified columns, with
+the change added to its log.
+}
 \description{
-Modify columns of An ExperimentLogged object
+\code{mutate()} is re-exported from \pkg{dplyr}, so it is available after
+\code{library(omicslog)}. These methods log the operation on
+ExperimentLogged objects; see \code{\link[dplyr:mutate]{dplyr::mutate()}} for the generic.
 }
 \examples{
 if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
@@ -23,5 +30,6 @@ if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
   se_logged <- log_start(se)
   result <- se_logged |>
     mutate(type = sub("_end","",colData(se)$type))
+  result
 }
 }

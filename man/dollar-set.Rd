@@ -9,6 +9,17 @@
 
 \S4method{$}{SingleCellExperimentLogged}(x, name) <- value
 }
+\arguments{
+\item{x}{An ExperimentLogged object}
+
+\item{name}{Name of the \code{colData} column to add or modify}
+
+\item{value}{Values for the column}
+}
+\value{
+The modified ExperimentLogged object, with the change added to its
+log.
+}
 \description{
 Assign column to colData using \verb{$<-} for ExperimentLogged
 }
@@ -23,5 +34,6 @@ if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
   
   # Add new column
   colData(se_logged)$new_column <- rep("test", ncol(se_logged))
+  se_logged
 }
 }

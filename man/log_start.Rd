@@ -18,7 +18,10 @@ log_start(se)
 \item{object}{An ExperimentLogged object}
 }
 \value{
-An ExperimentLogged object with tracking capabilities
+\code{log_start()} returns an ExperimentLogged object
+(SummarizedExperimentLogged or SingleCellExperimentLogged) with an empty
+log. \code{show()} prints the object followed by its operation log and
+returns \code{NULL} invisibly.
 }
 \description{
 This function wraps a SummarizedExperiment object with logging capabilities.
@@ -27,9 +30,10 @@ when the object is printed.
 }
 \examples{
 if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
-  se <- tidySummarizedExperiment::pasilla
+se <- tidySummarizedExperiment::pasilla
   se_logged <- log_start(se)
   result <- se_logged |>
     filter(condition == "treated")
+  result
 }
 }

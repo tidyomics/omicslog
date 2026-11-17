@@ -8,3 +8,10 @@
 A class union of SummarizedExperimentLogged and SingleCellExperimentLogged,
 used to define logging methods once for both classes.
 }
+\examples{
+counts <- matrix(rpois(20, 10), nrow = 5)
+se_logged <- log_start(SummarizedExperiment(assays = list(counts = counts)))
+sce_logged <- log_start(SingleCellExperiment(assays = list(counts = counts)))
+is(se_logged, "ExperimentLogged")
+is(sce_logged, "ExperimentLogged")
+}

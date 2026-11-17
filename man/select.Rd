@@ -2,6 +2,7 @@
 % Please edit documentation in R/logging.R
 \name{select.SummarizedExperimentLogged}
 \alias{select.SummarizedExperimentLogged}
+\alias{select}
 \alias{select.SingleCellExperimentLogged}
 \title{Filter columns of An ExperimentLogged object}
 \usage{
@@ -14,14 +15,25 @@
 
 \item{...}{Name of columns to select or deselect}
 }
+\value{
+An ExperimentLogged object with the selected \code{colData} columns,
+with the number of removed columns added to its log. If the selection
+drops the key columns (\code{.feature}, \code{.sample}), tidySummarizedExperiment
+returns a tibble, which is returned unchanged and without a log.
+}
 \description{
-Filter columns of An ExperimentLogged object
+\code{select()} is re-exported from \pkg{dplyr}, so it is available after
+\code{library(omicslog)}. These methods log the operation on
+ExperimentLogged objects; see \code{\link[dplyr:select]{dplyr::select()}} for the generic.
 }
 \examples{
 if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
   se <- tidySummarizedExperiment::pasilla
   se_logged <- log_start(se)
+
+  # Drop a colData column: still a logged object
   result <- se_logged |>
-    select(condition)
+    select(!type)
+  result
 }
 }

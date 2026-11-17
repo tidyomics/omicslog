@@ -2,6 +2,7 @@
 % Please edit documentation in R/logging.R
 \name{filter.SummarizedExperimentLogged}
 \alias{filter.SummarizedExperimentLogged}
+\alias{filter}
 \alias{filter.SingleCellExperimentLogged}
 \title{Filter rows and columns of An ExperimentLogged object}
 \usage{
@@ -14,14 +15,21 @@
 
 \item{...}{Logical expressions used for filtering}
 }
+\value{
+An ExperimentLogged object with the features and observations
+that match the conditions, with the number removed added to its log.
+}
 \description{
-Filter rows and columns of An ExperimentLogged object
+\code{filter()} is re-exported from \pkg{dplyr}, so it is available after
+\code{library(omicslog)}. These methods log the operation on
+ExperimentLogged objects; see \code{\link[dplyr:filter]{dplyr::filter()}} for the generic.
 }
 \examples{
 if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
-  se <- tidySummarizedExperiment::pasilla
+se <- tidySummarizedExperiment::pasilla
   se_logged <- log_start(se)
   result <- se_logged |>
     filter(condition == "treated")
+  result
 }
 }

@@ -6,6 +6,28 @@
 \usage{
 \S4method{reducedDims}{SingleCellExperimentLogged}(x, withDimnames = TRUE, ...) <- value
 }
+\arguments{
+\item{x}{A SingleCellExperimentLogged object}
+
+\item{withDimnames, ...}{Passed to the \verb{reducedDims<-} method of
+SingleCellExperiment}
+
+\item{value}{A list of matrices, each with one row per cell}
+}
+\value{
+The modified SingleCellExperimentLogged object, with added and
+modified reduced dimensions added to its log.
+}
 \description{
 Assign a List of matrices to reducedDims using \verb{reducedDims<-} for SingleCellExperimentLogged
+}
+\examples{
+# Create a logged SingleCellExperiment
+if (requireNamespace("tidySingleCellExperiment", quietly = TRUE)) {
+  data(pbmc_small, package="tidySingleCellExperiment")
+  sce_logged <- log_start(pbmc_small)
+  
+  reducedDims(sce_logged)$TSNE <- abs(reducedDims(sce_logged)$TSNE)
+  sce_logged
+}
 }

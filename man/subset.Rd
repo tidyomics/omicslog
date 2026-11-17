@@ -13,6 +13,12 @@
 \item{x}{A ExperimentLogged object}
 
 \item{i, j, ...}{Indices for subsetting}
+
+\item{drop}{Passed to the \code{[} method of the parent class}
+}
+\value{
+The subset ExperimentLogged object, with removed features and
+observations added to its log.
 }
 \description{
 Subset a ExperimentLogged object
@@ -23,6 +29,7 @@ if (requireNamespace("tidySummarizedExperiment", quietly = TRUE)) {
   se <- tidySummarizedExperiment::pasilla
   se_logged <- log_start(se)
   
-  se_logged <- se_logged[1:10,]
+  se_logged <- se_logged[1:10,1:5]
+  se_logged
 }
 }

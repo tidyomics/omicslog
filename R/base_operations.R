@@ -23,8 +23,8 @@
               percent_removed <- round(genes_removed / pre_dim[1] * 100)
               msgs <- c(msgs, list(Time = timestamp, Operation = "subset", 
               Message = paste0(
-                "removed ", genes_removed, " features (", percent_removed, "%), ",
-                post_dim[1], " features remaining"
+                "removed ", genes_removed, " feature(s) (", percent_removed, "%), ",
+                post_dim[1], " feature(s) remaining"
               ))) 
 
               # Add the messages to log history if any
@@ -46,8 +46,8 @@
               percent_removed <- round(samples_removed / pre_dim[2] * 100)
               msgs <- c(msgs, list(Time = timestamp, Operation = "subset", 
               Message = paste0(
-                "removed ", samples_removed, " observations (", percent_removed, "%), ",
-                post_dim[2], " observations remaining"
+                "removed ", samples_removed, " observation(s) (", percent_removed, "%), ",
+                post_dim[2], " observation(s) remaining"
               )))
 
               # Add the messages to log history if any
@@ -69,6 +69,9 @@
 #' @rdname subset
 #' @param x A ExperimentLogged object
 #' @param i,j,... Indices for subsetting
+#' @param drop Passed to the `[` method of the parent class
+#' @return The subset ExperimentLogged object, with removed features and
+#'   observations added to its log.
 #' @export
 #' @examples
 #' # Create a logged SummarizedExperiment
@@ -91,6 +94,10 @@ setMethod("[", signature = signature(x = "SingleCellExperimentLogged"), .logged_
 
             # Check if new assay is being added
             is_new_assay <- !(name %in% names(assays(x)))
+
+            if (name %in% colnames(colData(x))) {
+               is_new_column <- is_new_assay <- FALSE
+            }
             
             # Apply the modification using parent class method
             result <- callNextMethod(x, name, value)
@@ -121,6 +128,11 @@ setMethod("[", signature = signature(x = "SingleCellExperimentLogged"), .logged_
 
 #' Assign column to colData using `$<-` for ExperimentLogged
 #' @rdname dollar-set
+#' @param x An ExperimentLogged object
+#' @param name Name of the `colData` column to add or modify
+#' @param value Values for the column
+#' @return The modified ExperimentLogged object, with the change added to its
+#'   log.
 #' @importFrom SummarizedExperiment colData colData<-
 #' @importFrom BiocGenerics colnames
 #' @export
@@ -262,6 +274,10 @@ setMethod("$<-", signature = signature(x = "SingleCellExperimentLogged"), .logge
 
 #' Assign column to rowData using `rowData<-` for ExperimentLogged
 #' @rdname rowData
+#' @param x An ExperimentLogged object
+#' @param value A DataFrame with the new row data
+#' @return The modified ExperimentLogged object, with added and modified
+#'   `rowData` columns added to its log.
 #' @export
 #' @examples
 #' # Create a logged SingleCellExperiment
@@ -341,6 +357,10 @@ setMethod("rowData<-", signature = signature(x = "ExperimentLogged", value = "DF
 
 #' Assign column to colData using `colData<-` for ExperimentLogged
 #' @rdname colData
+#' @param x An ExperimentLogged object
+#' @param value A DataFrame with the new column data
+#' @return The modified ExperimentLogged object, with added and modified
+#'   `colData` columns added to its log.
 #' @export
 #' @examples
 #' # Create a logged SingleCellExperiment
@@ -365,6 +385,11 @@ setMethod("colData<-", signature = signature(x = "ExperimentLogged", value = "DF
 
 #' Assign List to assays using `assays<-` for ExperimentLogged
 #' @rdname assays
+#' @param x An ExperimentLogged object
+#' @param withDimnames,... Passed to the `assays<-` method of the parent class
+#' @param value A SimpleList of assays
+#' @return The modified ExperimentLogged object, with added and modified
+#'   assays added to its log.
 #' @export
 #' @examples
 #' # Create a logged SingleCellExperiment
@@ -375,7 +400,8 @@ setMethod("colData<-", signature = signature(x = "ExperimentLogged", value = "DF
 #'   assays(sce_logged)$log2.counts <- log2(assays(sce_logged)$counts)
 #'   sce_logged
 #' }
-setMethod("assays<-", signature = signature(x = "SummarizedExperimentLogged", value = "SimpleList"),
+setMethod("assays<-", signature = signature(x = "SummarizedExperimentLogged", 
+  value = "SimpleList"),
   function(x, withDimnames = TRUE, ..., value) {
     result <- callNextMethod(x, withDimnames = withDimnames, ..., value = value)
     .assays_logged_update(x, value, result)
@@ -428,6 +454,13 @@ setMethod("assays<-", signature = signature(x = "SingleCellExperimentLogged", va
 
 #' Assign a matrix to a named reduced dimension using `reducedDim<-` for SingleCellExperimentLogged
 #' @rdname reducedDim
+#' @param x A SingleCellExperimentLogged object
+#' @param type Name or index of the reduced dimension to set
+#' @param withDimnames,... Passed to the `reducedDim<-` method of
+#'   SingleCellExperiment
+#' @param value A matrix with one row per cell
+#' @return The modified SingleCellExperimentLogged object, with the change
+#'   added to its log.
 #' @importFrom SingleCellExperiment reducedDim reducedDim<- reducedDimNames
 #' @export
 #' @examples
@@ -510,6 +543,12 @@ setMethod("reducedDim<-", signature = signature(x = "SingleCellExperimentLogged"
 
 #' Assign a List of matrices to reducedDims using `reducedDims<-` for SingleCellExperimentLogged
 #' @rdname reducedDims
+#' @param x A SingleCellExperimentLogged object
+#' @param withDimnames,... Passed to the `reducedDims<-` method of
+#'   SingleCellExperiment
+#' @param value A list of matrices, each with one row per cell
+#' @return The modified SingleCellExperimentLogged object, with added and
+#'   modified reduced dimensions added to its log.
 #' @importFrom SingleCellExperiment reducedDims reducedDims<- reducedDimNames
 #' @export
 #' @examples
