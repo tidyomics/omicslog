@@ -1,6 +1,6 @@
 Package: omicslog
 Title: Logging for High-Throughput Omics Data Analysis
-Version: 0.99.0
+Version: 0.99.1
 Date: 2026-11-16
 Authors@R: c(
       person("Juan David", "Henao", role = c("aut","cre"),

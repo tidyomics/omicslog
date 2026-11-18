@@ -6,18 +6,18 @@ test_that("[ logs removed genes and samples as separate entries", {
   expect_s4_class(result, "SummarizedExperimentLogged")
   expect_equal(dim(result), c(10L, ncol(se_logged)))
   expect_equal(nrow(result@log_history), 1)
-  expect_match(log_lines(result), "^subset: removed \\d+ features")
+  expect_match(log_lines(result), r"(^subset: removed \d+ feature\(s\))")
 
   result <- se_logged[, keep]
   expect_equal(nrow(result), nrow(se_logged))
   expect_equal(nrow(result@log_history), 1)
-  expect_match(log_lines(result), "^subset: removed \\d+ observations")
+  expect_match(log_lines(result), r"(^subset: removed \d+ observation\(s\))")
 
   result <- se_logged[1:5, keep]
   expect_equal(dim(result), c(5L, sum(keep)))
   expect_equal(nrow(result@log_history), 2)
-  expect_match(log_lines(result)[1], "^subset: removed \\d+ features")
-  expect_match(log_lines(result)[2], "^subset: removed \\d+ observations")
+  expect_match(log_lines(result)[1], r"(^subset: removed \d+ feature\(s\))")
+  expect_match(log_lines(result)[2], r"(^subset: removed \d+ observation\(s\))")
 })
 
 test_that("[ without dimension changes adds no log entry", {
